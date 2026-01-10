@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fluttertoast/fluttertoast.dart'; // Import Toast
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:kadaierland/models/product_model.dart';
 import 'package:kadaierland/pages/products/product_grid_page.dart';
 import 'package:kadaierland/pages/products/product_detail_page.dart';
@@ -20,7 +20,6 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  // --- STATE VARIABLES ---
   int _selectedIndex = 0;
   String username = "Guest";
   bool isLogin = false;
@@ -60,7 +59,6 @@ class _HomepageState extends State<Homepage> {
     super.dispose();
   }
 
-  // --- CEK STATUS USER (Login/Guest) ---
   void checkUserStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -75,15 +73,11 @@ class _HomepageState extends State<Homepage> {
     });
   }
 
-  // --- LOGIC BOTTOM NAVBAR ---
   void _onItemTapped(int index) {
     if (index == 1) {
-      // Jika klik Profile
       if (isLogin) {
-        // Tampilkan Dialog Logout atau Halaman Profil Sederhana
         _showProfileDialog();
       } else {
-        // Jika Guest, lempar ke Login
         Fluttertoast.showToast(msg: "Silakan Login Terlebih Dahulu");
         Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
       }
@@ -97,28 +91,60 @@ class _HomepageState extends State<Homepage> {
   void _showProfileDialog() {
     showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20))
+      ),
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(20),
-          height: 200,
+          height: 220,
           child: Column(
             children: [
-              const Icon(Icons.account_circle, size: 60, color: Colors.blue),
-              const SizedBox(height: 10),
-              Text("Halo, $username", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const Icon(Icons.account_circle, size: 70, color: Colors.blue),
+              const SizedBox(height: 15),
+              Text(
+                "Halo, $username", 
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
+              ),
+              const SizedBox(height: 5),
+              Text(
+                "Selamat berbelanja!", 
+                style: TextStyle(fontSize: 13, color: Colors.grey[600])
+              ),
               const Spacer(),
               SizedBox(
                 width: double.infinity,
+                height: 45,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)
+                    ),
+                  ),
                   onPressed: () async {
                     SharedPreferences prefs = await SharedPreferences.getInstance();
-                    await prefs.clear(); // Hapus Token
-                    Navigator.pop(context); // Tutup Dialog
-                    // Refresh Halaman jadi Guest
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Homepage()));
+                    await prefs.clear();
+                    if (!mounted) return;
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context, 
+                      MaterialPageRoute(builder: (context) => const Homepage())
+                    );
                   },
-                  child: const Text("Logout", style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    "Logout", 
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                  ),
                 ),
               )
             ],
@@ -128,7 +154,6 @@ class _HomepageState extends State<Homepage> {
     );
   }
 
-  // --- BANNER SLIDER ---
   void bannerOnBoarding() {
     bannerTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (mounted) {
@@ -136,13 +161,16 @@ class _HomepageState extends State<Homepage> {
           indexBanner = (indexBanner < bannerImage.length - 1) ? indexBanner + 1 : 0;
         });
         if (bannerController.hasClients) {
-          bannerController.animateToPage(indexBanner, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+          bannerController.animateToPage(
+            indexBanner, 
+            duration: const Duration(milliseconds: 500), 
+            curve: Curves.easeInOut
+          );
         }
       }
     });
   }
 
-  // --- API PRODUCT ---
   Future<void> getAllProductItems() async {
     try {
       var response = await http.get(Uri.parse("${ApiConstants.baseUrl}/products"));
@@ -158,27 +186,63 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
-  // --- WIDGET CATEGORY CARD (FIXED WIDTH) ---
-  Widget _buildCategoryCard({required String imagePath, required String label, required String categoryCode}) {
-    // Menggunakan Expanded agar membagi rata lebar layar (Tidak dempet/nabrak)
+  Widget _buildCategoryCard({
+    required String imagePath, 
+    required String label, 
+    required String categoryCode
+  }) {
     return Expanded(
       child: InkWell(
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ProductGridPage(category: categoryCode, pageTitle: label)));
+          Navigator.push(
+            context, 
+            MaterialPageRoute(
+              builder: (context) => ProductGridPage(
+                category: categoryCode, 
+                pageTitle: label
+              )
+            )
+          );
         },
+        borderRadius: BorderRadius.circular(12),
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.2), blurRadius: 5)],
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.15), 
+                    blurRadius: 8,
+                    offset: const Offset(0, 2)
+                  )
+                ],
               ),
-              child: Image.asset(imagePath, width: 30, height: 30, fit: BoxFit.contain),
+              child: Image.asset(
+                imagePath, 
+                width: 35, 
+                height: 35, 
+                fit: BoxFit.contain,
+                errorBuilder: (c, e, s) => const Icon(
+                  Icons.image_not_supported, 
+                  size: 35, 
+                  color: Colors.grey
+                ),
+              ),
             ),
-            const SizedBox(height: 5),
-            Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+            const SizedBox(height: 8),
+            Text(
+              label, 
+              style: const TextStyle(
+                fontSize: 11, 
+                fontWeight: FontWeight.w600
+              ), 
+              maxLines: 1, 
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
@@ -188,53 +252,66 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Background sedikit abu biar konten nonjol
+      backgroundColor: Colors.grey[100],
       
-      // --- APP BAR ---
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.blue,
+        elevation: 0,
         title: Row(
           children: [
             Expanded(
               child: SizedBox(
-                height: 40,
+                height: 42,
                 child: TextField(
                   controller: searchProduct,
+                  style: const TextStyle(fontSize: 14),
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                    hintText: 'Cari barang...',
-                    hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
-                    contentPadding: EdgeInsets.zero,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey, size: 22),
+                    hintText: 'Cari produk impianmu...',
+                    hintStyle: TextStyle(color: Colors.grey[500], fontSize: 13),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10), 
+                      borderSide: BorderSide.none
+                    ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 15),
+            const SizedBox(width: 12),
             InkWell(
               onTap: () {
-                // Cart bisa diakses Guest, tapi checkout nanti dicek
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const CartPage()));
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (context) => const CartPage())
+                );
               },
-              child: const Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 26),
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                child: const Icon(
+                  Icons.shopping_cart_outlined, 
+                  color: Colors.white, 
+                  size: 26
+                ),
+              ),
             ),
           ],
         ),
       ),
 
-      // --- BODY ---
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 15),
             
-            // 1. BANNER SLIDER
+            // Banner Slider
             SizedBox(
-              height: 150,
+              height: 160,
               child: PageView.builder(
                 controller: bannerController,
                 itemCount: bannerImage.length,
@@ -243,70 +320,160 @@ class _HomepageState extends State<Homepage> {
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 15),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      image: DecorationImage(image: AssetImage(bannerImage[index]), fit: BoxFit.cover),
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3)
+                        )
+                      ],
+                      image: DecorationImage(
+                        image: AssetImage(bannerImage[index]), 
+                        fit: BoxFit.cover
+                      ),
                     ),
                   );
                 },
               ),
             ),
-            // Indikator Titik
-            const SizedBox(height: 8),
+            
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(bannerImage.length, (index) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                width: 6, height: 6,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: indexBanner == index ? Colors.blue : Colors.grey[300],
-                ),
-              )),
+              children: List.generate(
+                bannerImage.length, 
+                (index) => Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: indexBanner == index ? 24 : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: indexBanner == index ? Colors.blue : Colors.grey[300],
+                  ),
+                )
+              ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 25),
 
-            // 2. KATEGORI (FIXED ROW - TIDAK BISA DISLIDE)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: Text("Kategori", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            ),
-            const SizedBox(height: 10),
-            
-            // Menggunakan Padding dan Row + Expanded agar rapi dan fixed
+            // Kategori
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, // Bagi jarak rata
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildCategoryCard(imagePath: "lib/images/gadgets-vector.png", label: "Gadget", categoryCode: "Electronic"),
-                  _buildCategoryCard(imagePath: "lib/images/male-clothes-vector.png", label: "Baju Pria", categoryCode: "MenClothes"),
-                  _buildCategoryCard(imagePath: "lib/images/female-clothes-vector.png", label: "Baju Wanita", categoryCode: "WomenClothes"),
-                  _buildCategoryCard(imagePath: "lib/images/male-shoes-vector.png", label: "Sepatu Pria", categoryCode: "ManShoes"),
-                  _buildCategoryCard(imagePath: "lib/images/female-shoes-vector.png", label: "Sepatu Wanita", categoryCode: "WomenShoes")
+                  const Text(
+                    "Kategori Produk", 
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 17
+                    )
+                  ),
+                  Text(
+                    "Lihat Semua", 
+                    style: TextStyle(
+                      color: Colors.blue[700], 
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600
+                    )
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 15),
+            
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildCategoryCard(
+                    imagePath: "lib/images/gadgets-vector.png", 
+                    label: "Gadget", 
+                    categoryCode: "Electronic"
+                  ),
+                  _buildCategoryCard(
+                    imagePath: "lib/images/male-clothes-vector.png", 
+                    label: "Baju Pria", 
+                    categoryCode: "MenClothes"
+                  ),
+                  _buildCategoryCard(
+                    imagePath: "lib/images/female-clothes-vector.png", 
+                    label: "Baju Wanita", 
+                    categoryCode: "WomenClothes"
+                  ),
+                  _buildCategoryCard(
+                    imagePath: "lib/images/male-shoes-vector.png", 
+                    label: "Sepatu Pria", 
+                    categoryCode: "ManShoes"
+                  ),
+                  _buildCategoryCard(
+                    imagePath: "lib/images/female-shoes-vector.png", 
+                    label: "Sepatu Wanita", 
+                    categoryCode: "WomenShoes"
+                  )
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 25),
 
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: Text("Rekomendasi Untukmu", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Rekomendasi Untukmu", 
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold, 
+                      fontSize: 17
+                    )
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.orange[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.orange.withOpacity(0.3))
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.local_fire_department, size: 14, color: Colors.orange[700]),
+                        const SizedBox(width: 4),
+                        Text(
+                          "HOT", 
+                          style: TextStyle(
+                            color: Colors.orange[700], 
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold
+                          )
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
             
             Padding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(50),
+                        child: CircularProgressIndicator(),
+                      )
+                    )
                   : GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 0.72,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
+                        childAspectRatio: 0.68,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
                       ),
                       itemCount: listProduct.length,
                       itemBuilder: (context, index) {
@@ -319,49 +486,147 @@ class _HomepageState extends State<Homepage> {
         ),
       ),
 
-      // --- BOTTOM NAVIGATION BAR ---
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, -3)
+            )
+          ]
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.grey,
+          showUnselectedLabels: true,
+          type: BottomNavigationBarType.fixed,
+          elevation: 0,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined), 
+              activeIcon: Icon(Icons.home),
+              label: "Home"
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline), 
+              activeIcon: Icon(Icons.person),
+              label: "Profile"
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // --- WIDGET CARD PRODUK ---
   Widget _buildProductCard(ProductModel product) {
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.withOpacity(0.2))
+      ),
       child: InkWell(
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailPage(product: product)));
+          Navigator.push(
+            context, 
+            MaterialPageRoute(
+              builder: (context) => ProductDetailPage(product: product)
+            )
+          );
         },
+        borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                child: Image.network(product.imageUrl, width: double.infinity, fit: BoxFit.cover, errorBuilder: (c,e,s) => const Center(child: Icon(Icons.broken_image, color: Colors.grey))),
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    child: Image.network(
+                      product.imageUrl, 
+                      width: double.infinity, 
+                      fit: BoxFit.cover, 
+                      errorBuilder: (c, e, s) => Container(
+                        color: Colors.grey[200],
+                        child: const Center(
+                          child: Icon(
+                            Icons.broken_image, 
+                            color: Colors.grey, 
+                            size: 50
+                          )
+                        ),
+                      )
+                    ),
+                  ),
+                  if (product.stock < 10)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          "Stok Terbatas",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(product.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 4),
-                  Text(formatter.format(product.price), style: const TextStyle(fontSize: 13, color: Colors.blue, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 5),
-                  Text("Stok: ${product.stock}", style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                  Text(
+                    product.name, 
+                    maxLines: 2, 
+                    overflow: TextOverflow.ellipsis, 
+                    style: const TextStyle(
+                      fontSize: 13, 
+                      fontWeight: FontWeight.w600,
+                      height: 1.2
+                    )
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    formatter.format(product.price), 
+                    style: const TextStyle(
+                      fontSize: 14, 
+                      color: Colors.blue, 
+                      fontWeight: FontWeight.bold
+                    )
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.inventory_2_outlined, 
+                        size: 12, 
+                        color: Colors.grey[600]
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "Stok: ${product.stock}", 
+                        style: TextStyle(
+                          fontSize: 11, 
+                          color: Colors.grey[600]
+                        )
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
