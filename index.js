@@ -14,24 +14,30 @@ app.use(cors());
 app.use(express.json());
 
 const mongoURI = process.env.MONGO_URI;
+const PORT = process.env.PORT || 3000;
+
+if (!mongoURI) {
+    console.error("❌ FATAL ERROR: MONGO_URI is undefined. Cek tab Variables di Railway!");
+    process.exit(1);
+}
 
 mongoose.connect(mongoURI)
-    .then(() => console.log('Connection Success!'))
-    .catch(err => console.log('Failed to Connect:', err));
+    .then(() => {
+        console.log('✅ Database Connection Success!');
+        
+        app.use('/api/auth', authRoutes);
+        app.use('/api/products', productRoutes); 
+        app.use('/api/cart', cartRoutes);
+        app.use('/api/orders', transactionRoutes); 
 
-app.use('/api/auth', authRoutes);
+        app.get('/', (req, res) => {
+            res.send('Server Running Successfully!');
+        });
 
-app.use('/api/products', productRoutes); 
-
-app.use('/api/cart', cartRoutes);
-
-app.use('/api/orders', transactionRoutes); 
-
-app.get('/', (req, res) => {
-    res.send('Server Running Successfully!');
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+        app.listen(PORT, () => {
+            console.log(`🚀 Server running on port ${PORT}`);
+        });
+    })
+    .catch(err => {
+        console.error('❌ Failed to Connect to Database:', err);
+    });
