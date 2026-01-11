@@ -23,9 +23,13 @@ class AuthRepository {
         },
       );
 
+      // Check response structure
+      print('Register response: $response');
+
       final userData = response['data'] as Map<String, dynamic>;
       return UserModel.fromJson(userData);
     } catch (e) {
+      print('Register error: $e');
       throw Exception('Registration failed: $e');
     }
   }
@@ -44,24 +48,62 @@ class AuthRepository {
         },
       );
 
-      final data = response['data'] as Map<String, dynamic>;
-      final token = data['token'] as String;
-      final username = data['username'] as String;
+      print('Login response: $response');
+
+      // Handle different response structures
+      Map<String, dynamic> data;
+      
+      if (response.containsKey('data')) {
+        data = response['data'] as Map<String, dynamic>;
+      } else {
+        data = response;
+      }
+
+      // Extract token with multiple possible keys
+      String? token;
+      if (data.containsKey('token')) {
+        token = data['token'] as String?;
+      } else if (data.containsKey('accessToken')) {
+        token = data['accessToken'] as String?;
+      } else if (data.containsKey('access_token')) {
+        token = data['access_token'] as String?;
+      }
+
+      if (token == null || token.isEmpty) {
+        throw Exception('Token tidak ditemukan dalam response');
+      }
+
+      // Extract user info
+      String? username;
+      String? userId;
+
+      if (data.containsKey('user')) {
+        final userMap = data['user'] as Map<String, dynamic>;
+        username = userMap['username'] as String?;
+        userId = userMap['id'] as String? ?? userMap['_id'] as String?;
+      } else {
+        username = data['username'] as String?;
+        userId = data['id'] as String? ?? data['userId'] as String?;
+      }
 
       // Save token
       await _storageService.saveToken(token);
+      print('Token saved: ${token.substring(0, 20)}...');
 
       // Save user data
       await _storageService.saveUserData({
-        'username': username,
+        'id': userId ?? '',
+        'username': username ?? 'User',
         'email': email,
       });
 
       return {
         'token': token,
-        'username': username,
+        'username': username ?? 'User',
+        'userId': userId ?? '',
       };
     } catch (e) {
+      print('Login error: $e');
       throw Exception('Login failed: $e');
     }
   }
@@ -74,9 +116,19 @@ class AuthRepository {
         requiresAuth: true,
       );
 
-      final userData = response['data'] as Map<String, dynamic>;
+      print('Profile response: $response');
+
+      Map<String, dynamic> userData;
+      
+      if (response.containsKey('data')) {
+        userData = response['data'] as Map<String, dynamic>;
+      } else {
+        userData = response;
+      }
+
       return UserModel.fromJson(userData);
     } catch (e) {
+      print('Get profile error: $e');
       throw Exception('Failed to get profile: $e');
     }
   }

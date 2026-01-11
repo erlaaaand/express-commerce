@@ -107,7 +107,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                   
                   // App Name
                   const Text(
-                    'EcoShop',
+                    'ShopNow',
                     style: TextStyle(
                       color: AppColors.white,
                       fontSize: 36,
@@ -126,7 +126,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text(
-                      'Belanja Ramah Lingkungan',
+                      'Belanja Mudah, Cepat & Terpercaya',
                       style: TextStyle(
                         color: AppColors.white,
                         fontSize: 14,

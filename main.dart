@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'EcoShop',
+        title: 'ShopNow',
         theme: AppTheme.lightTheme,
         home: const SplashPage(),
       ),

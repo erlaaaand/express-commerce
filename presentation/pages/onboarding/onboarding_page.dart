@@ -15,21 +15,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   final List<_OnboardingData> _pages = [
     _OnboardingData(
-      icon: Icons.eco,
-      title: 'Produk Ramah Lingkungan',
-      description: 'Temukan berbagai produk berkualitas yang ramah lingkungan untuk kehidupan sehari-hari',
+      imagePath: 'lib/images/gadget-onboarding.webp',
+      title: 'Gadget & Elektronik',
+      description: 'Temukan berbagai gadget dan elektronik terbaru dengan harga terbaik',
       color: AppColors.primary,
     ),
     _OnboardingData(
-      icon: Icons.local_shipping_outlined,
-      title: 'Pengiriman Cepat',
-      description: 'Nikmati pengiriman cepat dan gratis ongkir untuk pembelian tertentu',
+      imagePath: 'lib/images/male-clothes-onboarding.webp',
+      title: 'Fashion Pria & Wanita',
+      description: 'Koleksi fashion terlengkap untuk gaya hidup modern Anda',
       color: AppColors.secondary,
     ),
     _OnboardingData(
-      icon: Icons.payment,
-      title: 'Pembayaran Aman',
-      description: 'Berbagai metode pembayaran yang aman dan terpercaya untuk kenyamanan Anda',
+      imagePath: 'lib/images/male-shoes-onboarding.webp',
+      title: 'Sepatu & Aksesoris',
+      description: 'Berbagai pilihan sepatu berkualitas untuk aktivitas sehari-hari',
       color: AppColors.accent,
     ),
   ];
@@ -106,36 +106,31 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 itemBuilder: (context, index) {
                   final page = _pages[index];
                   return Padding(
-                    padding: const EdgeInsets.all(40.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Icon
-                        Container(
-                          width: 140,
-                          height: 140,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                page.color,
-                                page.color.withOpacity(0.7),
-                              ],
-                            ),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: page.color.withOpacity(0.3),
-                                blurRadius: 30,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            page.icon,
-                            size: 70,
-                            color: AppColors.white,
+                        // Image
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            page.imagePath,
+                            height: 300,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 300,
+                                decoration: BoxDecoration(
+                                  color: page.color.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Icon(
+                                  Icons.image_outlined,
+                                  size: 80,
+                                  color: page.color,
+                                ),
+                              );
+                            },
                           ),
                         ),
 
@@ -155,14 +150,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         const SizedBox(height: 20),
 
                         // Description
-                        Text(
-                          page.description,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: AppColors.textSecondary,
-                            height: 1.6,
+                        Flexible(
+                          child: Text(
+                            page.description,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: AppColors.textSecondary,
+                              height: 1.6,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
@@ -224,7 +223,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   if (_currentPage > 0) const SizedBox(width: 16),
                   Expanded(
-                    flex: _currentPage > 0 ? 1 : 1,
                     child: ElevatedButton(
                       onPressed: _nextPage,
                       style: ElevatedButton.styleFrom(
@@ -260,13 +258,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
 }
 
 class _OnboardingData {
-  final IconData icon;
+  final String imagePath;
   final String title;
   final String description;
   final Color color;
 
   _OnboardingData({
-    required this.icon,
+    required this.imagePath,
     required this.title,
     required this.description,
     required this.color,

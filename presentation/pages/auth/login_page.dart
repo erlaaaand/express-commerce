@@ -34,8 +34,13 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Dismiss keyboard
+    FocusScope.of(context).unfocus();
+
     final authProvider = context.read<AuthProvider>();
     final cartProvider = context.read<CartProvider>();
+
+    print('Attempting login with email: ${_emailController.text.trim()}');
 
     final success = await authProvider.login(
       email: _emailController.text.trim(),
@@ -45,27 +50,70 @@ class _LoginPageState extends State<LoginPage> {
     if (!mounted) return;
 
     if (success) {
+      print('Login successful!');
+      
       // Sync local cart if any
-      await cartProvider.syncLocalCart();
+      try {
+        await cartProvider.syncLocalCart();
+      } catch (e) {
+        print('Cart sync error (non-critical): $e');
+      }
 
       Fluttertoast.showToast(
         msg: 'Login berhasil!',
         backgroundColor: AppColors.success,
         textColor: AppColors.white,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
       );
 
+      // Navigate to home
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const HomePage()),
         (_) => false,
       );
     } else {
+      print('Login failed with error: ${authProvider.errorMessage}');
+      
+      final errorMessage = authProvider.errorMessage ?? 'Login gagal, coba lagi';
+      
+      // Show error in toast
       Fluttertoast.showToast(
-        msg: authProvider.errorMessage ?? 'Login gagal',
+        msg: errorMessage,
         backgroundColor: AppColors.error,
         textColor: AppColors.white,
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
       );
+
+      // Also show in dialog for better visibility during debugging
+      if (errorMessage.length > 50) {
+        _showErrorDialog(errorMessage);
+      }
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.error_outline, color: AppColors.error),
+            SizedBox(width: 8),
+            Text('Login Gagal'),
+          ],
+        ),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -89,7 +137,9 @@ class _LoginPageState extends State<LoginPage> {
                   _buildPasswordField(),
                   const SizedBox(height: 32),
                   _buildLoginButton(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+                  _buildDebugInfo(),
+                  const SizedBox(height: 16),
                   _buildRegisterLink(),
                 ],
               ),
@@ -119,7 +169,7 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
             child: const Icon(
-              Icons.eco,
+              Icons.shopping_bag,
               size: 50,
               color: AppColors.white,
             ),
@@ -140,6 +190,7 @@ class _LoginPageState extends State<LoginPage> {
               fontSize: 14,
               color: AppColors.textSecondary.withOpacity(0.8),
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -194,10 +245,51 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Widget _buildDebugInfo() {
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        if (authProvider.errorMessage == null) {
+          return const SizedBox.shrink();
+        }
+
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.error.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: AppColors.error.withOpacity(0.3),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.info_outline,
+                color: AppColors.error,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  authProvider.errorMessage!,
+                  style: const TextStyle(
+                    color: AppColors.error,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildRegisterLink() {
     return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           const Text(
             'Belum punya akun? ',

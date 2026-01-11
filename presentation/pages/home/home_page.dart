@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _startBannerAutoScroll() {
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 4), () {
       if (mounted && _bannerController.hasClients) {
         final nextPage = (_currentBannerIndex + 1) % 3;
         _bannerController.animateToPage(
@@ -84,27 +84,32 @@ class _HomePageState extends State<HomePage> {
       elevation: 0,
       title: Row(
         children: [
-          const Icon(Icons.eco, color: AppColors.white),
+          const Icon(Icons.shopping_bag, color: AppColors.white),
           const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'EcoShop',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.white,
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'ShopNow',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.white,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Text(
-                'Halo, $username',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.white,
+                Text(
+                  'Halo, $username',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.white,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -126,33 +131,29 @@ class _HomePageState extends State<HomePage> {
   Widget _buildBanner() {
     final banners = [
       _BannerData(
-        title: 'Produk Ramah Lingkungan',
-        subtitle: 'Mulai dari Rp 50.000',
+        imagePath: 'lib/images/gadget-banner.webp',
+        title: 'Gadget Terbaru',
+        subtitle: 'Diskon hingga 50%',
         color: AppColors.primary,
-        gradient: AppColors.primaryGradient,
       ),
       _BannerData(
-        title: 'Gratis Ongkir',
-        subtitle: 'Minimum belanja Rp 100.000',
+        imagePath: 'lib/images/clothes-banner.webp',
+        title: 'Fashion Update',
+        subtitle: 'Koleksi terkini untuk Anda',
         color: AppColors.secondary,
-        gradient: const LinearGradient(
-          colors: [Color(0xFF66BB6A), Color(0xFF81C784)],
-        ),
       ),
       _BannerData(
-        title: 'Cashback 10%',
-        subtitle: 'Untuk pembelian pertama',
+        imagePath: 'lib/images/shoes-banner.webp',
+        title: 'Sepatu Pilihan',
+        subtitle: 'Gratis ongkir min. Rp 100.000',
         color: AppColors.accent,
-        gradient: const LinearGradient(
-          colors: [Color(0xFF81C784), Color(0xFFA5D6A7)],
-        ),
       ),
     ];
 
     return Column(
       children: [
         SizedBox(
-          height: 180,
+          height: 200,
           child: PageView.builder(
             controller: _bannerController,
             onPageChanged: (index) {
@@ -163,56 +164,94 @@ class _HomePageState extends State<HomePage> {
               final banner = banners[index];
               return Container(
                 margin: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: banner.gradient,
+                child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: banner.color.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Stack(
+                    fit: StackFit.expand,
                     children: [
+                      // Background Image
+                      Image.asset(
+                        banner.imagePath,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  banner.color,
+                                  banner.color.withOpacity(0.7),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      // Overlay Gradient
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
                         decoration: BoxDecoration(
-                          color: AppColors.white.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          'PROMO',
-                          style: TextStyle(
-                            color: AppColors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.black.withOpacity(0.5),
+                              Colors.black.withOpacity(0.2),
+                            ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        banner.title,
-                        style: const TextStyle(
-                          color: AppColors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        banner.subtitle,
-                        style: TextStyle(
-                          color: AppColors.white.withOpacity(0.9),
-                          fontSize: 14,
+                      // Content
+                      Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.white.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                'PROMO',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Flexible(
+                              child: Text(
+                                banner.title,
+                                style: const TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Flexible(
+                              child: Text(
+                                banner.subtitle,
+                                style: TextStyle(
+                                  color: AppColors.white.withOpacity(0.9),
+                                  fontSize: 14,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -246,11 +285,31 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCategories() {
     final categories = [
-      _CategoryData('Electronic', 'Elektronik', Icons.devices),
-      _CategoryData('MenClothes', 'Pria', Icons.checkroom),
-      _CategoryData('WomenClothes', 'Wanita', Icons.shopping_bag),
-      _CategoryData('ManShoes', 'Sepatu Pria', Icons.sports_basketball),
-      _CategoryData('WomenShoes', 'Sepatu Wanita', Icons.sports_tennis),
+      _CategoryData(
+        'Electronic',
+        'Elektronik',
+        'lib/images/gadgets-vector.png',
+      ),
+      _CategoryData(
+        'MenClothes',
+        'Pria',
+        'lib/images/male-clothes-vector.png',
+      ),
+      _CategoryData(
+        'WomenClothes',
+        'Wanita',
+        'lib/images/female-clothes-vector.png',
+      ),
+      _CategoryData(
+        'ManShoes',
+        'Sepatu Pria',
+        'lib/images/male-shoes-vector.png',
+      ),
+      _CategoryData(
+        'WomenShoes',
+        'Sepatu Wanita',
+        'lib/images/female-shoes-vector.png',
+      ),
     ];
 
     return Column(
@@ -268,7 +327,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         SizedBox(
-          height: 100,
+          height: 110,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -288,13 +347,13 @@ class _HomePageState extends State<HomePage> {
                   );
                 },
                 child: Container(
-                  width: 80,
+                  width: 85,
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   child: Column(
                     children: [
                       Container(
-                        width: 64,
-                        height: 64,
+                        width: 70,
+                        height: 70,
                         decoration: BoxDecoration(
                           color: AppColors.white,
                           borderRadius: BorderRadius.circular(16),
@@ -306,23 +365,34 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
-                        child: Icon(
-                          category.icon,
-                          color: AppColors.primary,
-                          size: 32,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.asset(
+                            category.imagePath,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.category,
+                                color: AppColors.primary,
+                                size: 32,
+                              );
+                            },
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        category.name,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
+                      Flexible(
+                        child: Text(
+                          category.name,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textPrimary,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -464,13 +534,17 @@ class _HomePageState extends State<HomePage> {
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
-              Text(
-                authProvider.user?.email ?? '',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
+              Flexible(
+                child: Text(
+                  authProvider.user?.email ?? '',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(height: 32),
@@ -526,7 +600,6 @@ class _ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image dengan AspectRatio 1:1
             AspectRatio(
               aspectRatio: 1.0,
               child: ClipRRect(
@@ -545,15 +618,17 @@ class _ProductCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      product.name,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                    Flexible(
+                      child: Text(
+                        product.name,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     const Spacer(),
                     Text(
@@ -563,6 +638,7 @@ class _ProductCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: AppColors.primary,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                     if (product.isLowStock) ...[
                       const SizedBox(height: 4),
@@ -582,6 +658,7 @@ class _ProductCard extends StatelessWidget {
                             color: AppColors.warning,
                             fontWeight: FontWeight.bold,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -597,23 +674,23 @@ class _ProductCard extends StatelessWidget {
 }
 
 class _BannerData {
+  final String imagePath;
   final String title;
   final String subtitle;
   final Color color;
-  final LinearGradient gradient;
 
   _BannerData({
+    required this.imagePath,
     required this.title,
     required this.subtitle,
     required this.color,
-    required this.gradient,
   });
 }
 
 class _CategoryData {
   final String code;
   final String name;
-  final IconData icon;
+  final String imagePath;
 
-  _CategoryData(this.code, this.name, this.icon);
+  _CategoryData(this.code, this.name, this.imagePath);
 }
