@@ -13,8 +13,14 @@ class OrderController {
       const payment = await PaymentService.createPaymentTransaction(order, user);
 
       return ResponseUtil.created(res, {
-        order,
-        payment
+        orderId: order.orderId,
+        paymentUrl: payment.redirect_url,
+        totalAmount: order.totalAmount,
+        status: order.status,
+        details: {
+          order,
+          payment
+        }
       }, 'Order created successfully');
     } catch (error) {
       if (error.message === 'Cart is empty' || error.message.includes('stock')) {
