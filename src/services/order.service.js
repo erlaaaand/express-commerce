@@ -5,6 +5,13 @@ const { ORDER_STATUS } = require('../config/constants');
 const crypto = require('crypto');
 
 class OrderService {
+  calculateShippingFee(subtotal) {
+    if (subtotal >= 100000) {
+      return 0;
+    }
+    return 15000;
+  }
+
   async createOrder(userId, shippingAddress) {
     const cart = await CartService.getCart(userId);
 
@@ -24,11 +31,19 @@ class OrderService {
       imageUrl: item.imageUrl
     }));
 
+    const subtotal = cart.totalTemporaryAmount;
+    
+    const shippingFee = this.calculateShippingFee(subtotal);
+
+    const totalAmount = subtotal + shippingFee;
+
     const order = await Order.create({
       userId,
       orderId,
       items: orderItems,
-      totalAmount: cart.totalTemporaryAmount,
+      subtotal,
+      shippingFee,
+      totalAmount,
       shippingAddress,
       status: ORDER_STATUS.PENDING
     });
