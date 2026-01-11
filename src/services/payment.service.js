@@ -9,11 +9,15 @@ class PaymentService {
     let calculatedItemTotal = 0;
 
     const itemDetails = order.items.map(item => {
-      const safeName = item.productName.length > 50 
-        ? item.productName.substring(0, 47) + '...' 
-        : item.productName;
+      const rawName = item.productName || 'Item';
+      const safeName = rawName.length > 50 
+        ? rawName.substring(0, 47) + '...' 
+        : rawName;
 
-      calculatedItemTotal += (item.priceAtPurchase * item.quantity);
+      const price = Number(item.priceAtPurchase);
+      const quantity = Number(item.quantity);
+    
+      calculatedItemTotal += (price * quantity);
 
       return {
         id: item.productId.toString(),
@@ -23,7 +27,8 @@ class PaymentService {
       };
     });
 
-    const difference = order.totalAmount - calculatedItemTotal;
+    const totalOrderAmount = Number(order.totalAmount);
+    const difference = totalOrderAmount - calculatedItemTotal;
 
     if (difference > 0) {
       itemDetails.push({
