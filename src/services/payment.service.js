@@ -6,10 +6,14 @@ class PaymentService {
   async createPaymentTransaction(order, user) {
     const snap = midtransConfig.getSnapInstance();
 
+    let calculatedItemTotal = 0;
+
     const itemDetails = order.items.map(item => {
       const safeName = item.productName.length > 50 
         ? item.productName.substring(0, 47) + '...' 
         : item.productName;
+
+      calculatedItemTotal += (item.priceAtPurchase * item.quantity);
 
       return {
         id: item.productId.toString(),
@@ -19,10 +23,12 @@ class PaymentService {
       };
     });
 
-    if (order.shippingFee && order.shippingFee > 0) {
+    const difference = order.totalAmount - calculatedItemTotal;
+
+    if (difference > 0) {
       itemDetails.push({
         id: 'SHIPPING-FEE',
-        price: order.shippingFee,
+        price: difference,
         quantity: 1,
         name: 'Shipping Fee'
       });
