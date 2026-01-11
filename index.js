@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const productRoutes = require('./routes/product');
 const cartRoutes = require('./routes/cart');
 const transactionRoutes = require('./routes/transaction');
+const paymentRoutes = require('./routes/payment');
 
 const app = express();
 
@@ -29,6 +30,7 @@ mongoose.connect(mongoURI)
         app.use('/api/products', productRoutes); 
         app.use('/api/cart', cartRoutes);
         app.use('/api/orders', transactionRoutes); 
+        app.use('/api/payment', paymentRoutes);
 
         app.get('/', (req, res) => {
             res.send('Server Running Successfully!');
