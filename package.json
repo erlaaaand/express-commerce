@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -15,9 +15,12 @@
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "midtrans-client": "^1.4.3",
     "mongoose": "^9.1.2",
+    "morgan": "^1.10.1",
     "nodemon": "^3.1.11",
     "uuid": "^13.0.0"
   },
