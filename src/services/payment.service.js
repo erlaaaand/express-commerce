@@ -6,6 +6,28 @@ class PaymentService {
   async createPaymentTransaction(order, user) {
     const snap = midtransConfig.getSnapInstance();
 
+    const itemDetails = order.items.map(item => {
+      const safeName = item.productName.length > 50 
+        ? item.productName.substring(0, 47) + '...' 
+        : item.productName;
+
+      return {
+        id: item.productId.toString(),
+        price: item.priceAtPurchase,
+        quantity: item.quantity,
+        name: safeName
+      };
+    });
+
+    if (order.shippingFee && order.shippingFee > 0) {
+      itemDetails.push({
+        id: 'SHIPPING-FEE',
+        price: order.shippingFee,
+        quantity: 1,
+        name: 'Shipping Fee'
+      });
+    }
+
     const parameter = {
       transaction_details: {
         order_id: order.orderId,
@@ -26,18 +48,24 @@ class PaymentService {
       }))
     };
 
-    const transaction = await snap.createTransaction(parameter);
+    try{
+      const transaction = await snap.createTransaction(parameter);
+  
+      await OrderService.updateOrderPayment(
+        order.orderId,
+        transaction.token,
+        transaction.redirect_url
+      );
 
-    await OrderService.updateOrderPayment(
-      order.orderId,
-      transaction.token,
-      transaction.redirect_url
-    );
-
-    return {
-      token: transaction.token,
-      redirect_url: transaction.redirect_url
-    };
+      return {
+        token: transaction.token,
+        redirect_url: transaction.redirect_url
+      };
+      
+    } catch(error){
+      console.error('Midtrans Error:', JSON.stringify(error.ApiResponse));
+      throw new Error(`Midtrans API Error: ${error.message}`);
+    }
   }
 
   async handlePaymentNotification(notification) {
