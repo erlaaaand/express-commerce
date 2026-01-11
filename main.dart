@@ -1,8 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:kadaierland/pages/intro/splashscreen.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+import 'core/constants/app_theme.dart';
+import 'presentation/providers/auth_provider.dart';
+import 'presentation/providers/product_provider.dart';
+import 'presentation/providers/cart_provider.dart';
+import 'presentation/pages/splash/splash_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Set system UI overlay style
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ),
+  );
+  
+  // Set preferred orientations
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]).then((_) {
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -10,14 +33,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Kadai Erland',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'EcoShop',
+        theme: AppTheme.lightTheme,
+        home: const SplashPage(),
       ),
-      home: const SplashScreen(),
     );
   }
 }
