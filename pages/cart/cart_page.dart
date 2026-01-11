@@ -36,7 +36,7 @@ class _CartPageState extends State<CartPage> {
 
     try {
       final response = await http.get(
-        Uri.parse("${ApiConstants.baseUrl}/cart"),
+        Uri.parse("${ApiConstants.baseUrl}/api/cart"),
         headers: {"Authorization": "Bearer $token"},
       );
 

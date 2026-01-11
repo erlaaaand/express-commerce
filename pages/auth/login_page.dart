@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
     
     try {
       final response = await http.post(
-        Uri.parse("${ApiConstants.baseUrl}/auth/login"),
+        Uri.parse("${ApiConstants.baseUrl}/api/auth/login"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "email": _emailCtrl.text.trim(),
@@ -256,7 +256,6 @@ class _LoginPageState extends State<LoginPage> {
                   
                   const SizedBox(height: 30),
                   
-                  // Login Button
                   SizedBox(
                     width: double.infinity,
                     height: 50,

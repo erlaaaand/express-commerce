@@ -173,7 +173,7 @@ class _HomepageState extends State<Homepage> {
 
   Future<void> getAllProductItems() async {
     try {
-      var response = await http.get(Uri.parse("${ApiConstants.baseUrl}/products"));
+      var response = await http.get(Uri.parse("${ApiConstants.baseUrl}/api/product"));
       if (response.statusCode == 200) {
         List<dynamic> decoded = jsonDecode(response.body);
         setState(() {

@@ -41,7 +41,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
     try {
       final response = await http.post(
-        Uri.parse("${ApiConstants.baseUrl}/cart"),
+        Uri.parse("${ApiConstants.baseUrl}/api/cart"),
         headers: {
           "Content-Type": "application/json", 
           "Authorization": "Bearer $token"
