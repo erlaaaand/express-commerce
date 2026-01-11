@@ -51,7 +51,7 @@ class _ProductGridPageState extends State<ProductGridPage> {
     
     try {
       final response = await http.get(
-        Uri.parse("${ApiConstants.baseUrl}/api/product")
+        Uri.parse("${ApiConstants.baseUrl}/api/products")
       );
 
       if (response.statusCode == 200) {
