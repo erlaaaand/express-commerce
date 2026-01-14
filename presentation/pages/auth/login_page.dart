@@ -4,12 +4,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/custom_button.dart';
-import '../../../core/widgets/custom_text_field.dart';
-import '../../../core/utils/validators.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../home/home_page.dart';
-import 'register_page.dart';
 import 'widgets/login_header.dart';
 import 'widgets/login_form_fields.dart';
 import 'widgets/login_debug_info.dart';
