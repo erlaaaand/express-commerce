@@ -6,43 +6,48 @@ class PaymentService {
   async createPaymentTransaction(order, user) {
     const snap = midtransConfig.getSnapInstance();
 
-    let calculatedItemTotal = 0;
-
     const itemDetails = order.items.map(item => {
       const rawName = item.productName || 'Item';
-      const safeName = rawName.length > 50 
-        ? rawName.substring(0, 47) + '...' 
+      
+      const safeName = rawName.length > 40 
+        ? rawName.substring(0, 37) + '...' 
         : rawName;
 
-      const price = Number(item.priceAtPurchase);
-      const quantity = Number(item.quantity);
+      const price = parseInt(item.priceAtPurchase);
+      const quantity = parseInt(item.quantity);
     
-      calculatedItemTotal += (price * quantity);
-
       return {
         id: item.productId.toString(),
-        price: item.priceAtPurchase,
-        quantity: item.quantity,
+        price: price,
+        quantity: quantity,
         name: safeName
       };
     });
 
-    const totalOrderAmount = Number(order.totalAmount);
-    const difference = totalOrderAmount - calculatedItemTotal;
+    const currentItemsTotal = itemDetails.reduce((acc, item) => {
+      return acc + (item.price * item.quantity);
+    }, 0);
+
+    const targetTotalAmount = parseInt(order.totalAmount);
+    const difference = targetTotalAmount - currentItemsTotal;
 
     if (difference > 0) {
       itemDetails.push({
         id: 'SHIPPING-FEE',
         price: difference,
         quantity: 1,
-        name: 'Shipping Fee'
+        name: 'Biaya Pengiriman'
       });
     }
+
+    const finalGrossAmount = itemDetails.reduce((acc, item) => {
+      return acc + (item.price * item.quantity);
+    }, 0);
 
     const parameter = {
       transaction_details: {
         order_id: order.orderId,
-        gross_amount: order.totalAmount
+        gross_amount: finalGrossAmount
       },
       credit_card: {
         secure: true
@@ -51,15 +56,10 @@ class PaymentService {
         first_name: user.username,
         email: user.email
       },
-      item_details: order.items.map(item => ({
-        id: item.productId.toString(),
-        name: item.productName,
-        price: item.priceAtPurchase,
-        quantity: item.quantity
-      }))
+      item_details: itemDetails
     };
 
-    try{
+    try {
       const transaction = await snap.createTransaction(parameter);
   
       await OrderService.updateOrderPayment(
@@ -73,8 +73,8 @@ class PaymentService {
         redirect_url: transaction.redirect_url
       };
       
-    } catch(error){
-      console.error('Midtrans Error:', JSON.stringify(error.ApiResponse));
+    } catch(error) {
+      console.error('Midtrans Error Detail:', JSON.stringify(error.ApiResponse || error));
       throw new Error(`Midtrans API Error: ${error.message}`);
     }
   }
