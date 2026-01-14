@@ -34,13 +34,12 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Dismiss keyboard
     FocusScope.of(context).unfocus();
 
     final authProvider = context.read<AuthProvider>();
     final cartProvider = context.read<CartProvider>();
 
-    print('Attempting login with email: ${_emailController.text.trim()}');
+    debugPrint('Attempting login with email: ${_emailController.text.trim()}');
 
     final success = await authProvider.login(
       email: _emailController.text.trim(),
@@ -50,13 +49,12 @@ class _LoginPageState extends State<LoginPage> {
     if (!mounted) return;
 
     if (success) {
-      print('Login successful!');
+      debugPrint('Login successful!');
       
-      // Sync local cart if any
       try {
         await cartProvider.syncLocalCart();
       } catch (e) {
-        print('Cart sync error (non-critical): $e');
+        debugPrint('Cart sync error (non-critical): $e');
       }
 
       Fluttertoast.showToast(
@@ -67,18 +65,16 @@ class _LoginPageState extends State<LoginPage> {
         gravity: ToastGravity.BOTTOM,
       );
 
-      // Navigate to home
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const HomePage()),
         (_) => false,
       );
     } else {
-      print('Login failed with error: ${authProvider.errorMessage}');
+      debugPrint('Login failed with error: ${authProvider.errorMessage}');
       
       final errorMessage = authProvider.errorMessage ?? 'Login gagal, coba lagi';
       
-      // Show error in toast
       Fluttertoast.showToast(
         msg: errorMessage,
         backgroundColor: AppColors.error,
@@ -87,7 +83,6 @@ class _LoginPageState extends State<LoginPage> {
         gravity: ToastGravity.BOTTOM,
       );
 
-      // Also show in dialog for better visibility during debugging
       if (errorMessage.length > 50) {
         _showErrorDialog(errorMessage);
       }
