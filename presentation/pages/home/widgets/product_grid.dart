@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
-import '../../../../core/utils/image_helper.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../data/models/product_model.dart';
 import '../../../providers/product_provider.dart';
@@ -112,13 +112,37 @@ class ProductGridCard extends StatelessWidget {
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(12),
             ),
-            child: ImageHelper.networkImage(
-              url: product.imageUrl,
+            child: CachedNetworkImage(
+              imageUrl: product.imageUrl,
               fit: BoxFit.cover,
+              // Optimasi memori: Resize gambar di RAM agar tidak OOM
+              memCacheWidth: 300, 
+              placeholder: (context, url) => Container(
+                color: AppColors.background,
+                child: const Center(
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      color: AppColors.primary,
+                      strokeWidth: 2,
+                    ),
+                  ),
+                ),
+              ),
+              errorWidget: (context, url, error) => Container(
+                color: AppColors.background,
+                child: const Center(
+                  child: Icon(
+                    Icons.broken_image_outlined,
+                    color: AppColors.textHint,
+                    size: 24,
+                  ),
+                ),
+              ),
             ),
           ),
         ),
-
         if (product.hasPromo)
           Positioned(
             top: 8,
@@ -142,7 +166,6 @@ class ProductGridCard extends StatelessWidget {
               ),
             ),
           ),
-
         if (product.isLowStock)
           Positioned(
             top: 8,
@@ -187,9 +210,7 @@ class ProductGridCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-
             const Spacer(),
-
             if (product.hasPromo)
               Text(
                 CurrencyFormatter.format(product.price),
@@ -199,7 +220,6 @@ class ProductGridCard extends StatelessWidget {
                   decoration: TextDecoration.lineThrough,
                 ),
               ),
-
             Text(
               CurrencyFormatter.format(product.effectivePrice),
               style: const TextStyle(
@@ -208,9 +228,7 @@ class ProductGridCard extends StatelessWidget {
                 color: AppColors.primary,
               ),
             ),
-
             const SizedBox(height: 4),
-
             Row(
               children: [
                 const Icon(
