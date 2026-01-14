@@ -11,6 +11,7 @@ import '../../../data/models/cart_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../auth/login_page.dart';
+import '../checkout/checkout_page.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -66,11 +67,10 @@ class _CartPageState extends State<CartPage> {
       return;
     }
 
-    // TODO: Navigate to checkout page
-    Fluttertoast.showToast(
-      msg: 'Fitur checkout sedang dalam pengembangan',
-      backgroundColor: AppColors.info,
-      textColor: AppColors.white,
+    // Navigate to checkout page
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const CheckoutPage()),
     );
   }
 
@@ -138,6 +138,9 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _buildBottomSection(CartProvider cartProvider) {
+    final shippingCost = cartProvider.totalAmount >= 100000 ? 0 : 15000;
+    final total = cartProvider.totalAmount + shippingCost;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -153,11 +156,75 @@ class _CartPageState extends State<CartPage> {
       child: SafeArea(
         child: Column(
           children: [
+            // Subtotal
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Total Belanja:',
+                  'Subtotal:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                Text(
+                  CurrencyFormatter.format(cartProvider.totalAmount),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            
+            // Shipping
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Ongkir:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                Text(
+                  shippingCost == 0 
+                    ? 'GRATIS' 
+                    : CurrencyFormatter.format(shippingCost),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: shippingCost == 0 
+                      ? AppColors.success 
+                      : AppColors.textSecondary,
+                    fontWeight: shippingCost == 0 
+                      ? FontWeight.bold 
+                      : FontWeight.normal,
+                  ),
+                ),
+              ],
+            ),
+            
+            if (cartProvider.totalAmount < 100000) ...[
+              const SizedBox(height: 4),
+              Text(
+                'Belanja Rp ${CurrencyFormatter.format(100000 - cartProvider.totalAmount)} lagi untuk gratis ongkir',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.warning,
+                ),
+              ),
+            ],
+            
+            const Divider(height: 24),
+            
+            // Total
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Total:',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -165,7 +232,7 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
                 Text(
-                  CurrencyFormatter.format(cartProvider.totalAmount),
+                  CurrencyFormatter.format(total),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -324,7 +391,6 @@ class _CartItemCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            // Image
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: ImageHelper.networkImage(
@@ -334,10 +400,7 @@ class _CartItemCard extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-
             const SizedBox(width: 12),
-
-            // Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -425,10 +488,7 @@ class _CartItemCard extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(width: 8),
-
-            // Delete button
             IconButton(
               icon: const Icon(
                 Icons.delete_outline,

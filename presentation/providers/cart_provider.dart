@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../data/models/cart_model.dart';
 import '../../data/repositories/cart_repository.dart';
+import '../../data/repositories/order_repository.dart';
 
 class CartProvider with ChangeNotifier {
   final CartRepository _cartRepository = CartRepository();
+  final OrderRepository _orderRepository = OrderRepository();
 
   CartModel? _cart;
   bool _isLoading = false;
@@ -107,6 +109,44 @@ class CartProvider with ChangeNotifier {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       _setLoading(false);
       return false;
+    }
+  }
+
+  // Checkout cart - NEW METHOD
+  Future<Map<String, dynamic>?> checkoutCart({
+    required String shippingAddress,
+    String? notes,
+  }) async {
+    try {
+      _setLoading(true);
+      _errorMessage = null;
+
+      // Call checkout endpoint which creates order and payment
+      final response = await _orderRepository.checkout(
+        shippingAddress: shippingAddress,
+      );
+
+      // Clear cart after successful checkout
+      _cart = CartModel(
+        id: _cart?.id ?? '',
+        userId: _cart?.userId ?? '',
+        items: [],
+        updatedAt: DateTime.now(),
+      );
+
+      _setLoading(false);
+
+      // Return payment info
+      return {
+        'orderId': response['orderId'],
+        'paymentUrl': response['paymentUrl'],
+        'paymentToken': response['paymentToken'],
+        'totalAmount': response['totalAmount'],
+      };
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+      return null;
     }
   }
 
