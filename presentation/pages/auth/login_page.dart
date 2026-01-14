@@ -10,6 +10,10 @@ import '../../providers/auth_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../home/home_page.dart';
 import 'register_page.dart';
+import 'widgets/login_header.dart';
+import 'widgets/login_form_fields.dart';
+import 'widgets/login_debug_info.dart';
+import 'widgets/login_register_link.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -111,6 +115,12 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,191 +135,34 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 40),
-                  _buildHeader(),
+                  const LoginHeader(),
                   const SizedBox(height: 50),
-                  _buildEmailField(),
-                  const SizedBox(height: 20),
-                  _buildPasswordField(),
+                  LoginFormFields(
+                    emailController: _emailController,
+                    passwordController: _passwordController,
+                    isPasswordVisible: _isPasswordVisible,
+                    onTogglePasswordVisibility: _togglePasswordVisibility,
+                  ),
                   const SizedBox(height: 32),
-                  _buildLoginButton(),
+                  Consumer<AuthProvider>(
+                    builder: (context, authProvider, child) {
+                      return CustomButton(
+                        text: 'Masuk',
+                        onPressed: _handleLogin,
+                        isLoading: authProvider.isLoading,
+                        icon: Icons.login,
+                      );
+                    },
+                  ),
                   const SizedBox(height: 16),
-                  _buildDebugInfo(),
+                  const LoginDebugInfo(),
                   const SizedBox(height: 16),
-                  _buildRegisterLink(),
+                  const LoginRegisterLink(),
                 ],
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Center(
-      child: Column(
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              gradient: AppColors.primaryGradient,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.shopping_bag,
-              size: 50,
-              color: AppColors.white,
-            ),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Selamat Datang!',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Masuk untuk melanjutkan belanja',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary.withOpacity(0.8),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmailField() {
-    return CustomTextField(
-      controller: _emailController,
-      labelText: 'Email',
-      hintText: 'Masukkan email Anda',
-      prefixIcon: Icons.email_outlined,
-      keyboardType: TextInputType.emailAddress,
-      validator: Validators.validateEmail,
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return CustomTextField(
-      controller: _passwordController,
-      labelText: 'Password',
-      hintText: 'Masukkan password Anda',
-      prefixIcon: Icons.lock_outline,
-      obscureText: !_isPasswordVisible,
-      validator: Validators.validatePassword,
-      suffixIcon: IconButton(
-        icon: Icon(
-          _isPasswordVisible
-              ? Icons.visibility_outlined
-              : Icons.visibility_off_outlined,
-          color: AppColors.textHint,
-        ),
-        onPressed: () {
-          setState(() {
-            _isPasswordVisible = !_isPasswordVisible;
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _buildLoginButton() {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        return CustomButton(
-          text: 'Masuk',
-          onPressed: _handleLogin,
-          isLoading: authProvider.isLoading,
-          icon: Icons.login,
-        );
-      },
-    );
-  }
-
-  Widget _buildDebugInfo() {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        if (authProvider.errorMessage == null) {
-          return const SizedBox.shrink();
-        }
-
-        return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.error.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: AppColors.error.withOpacity(0.3),
-            ),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.info_outline,
-                color: AppColors.error,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  authProvider.errorMessage!,
-                  style: const TextStyle(
-                    color: AppColors.error,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildRegisterLink() {
-    return Center(
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          const Text(
-            'Belum punya akun? ',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const RegisterPage()),
-              );
-            },
-            child: const Text(
-              'Daftar Sekarang',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

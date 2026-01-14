@@ -3,10 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/widgets/custom_button.dart';
-import '../../../core/widgets/custom_text_field.dart';
-import '../../../core/utils/validators.dart';
 import '../../providers/auth_provider.dart';
+import 'widgets/register_header.dart';
+import 'widgets/register_form_fields.dart';
+import 'widgets/register_button.dart';
+import 'widgets/register_login_link.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -21,6 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
@@ -33,6 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
+  // Logic validasi tetap di sini karena membutuhkan akses ke controller lain
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
       return 'Konfirmasi password tidak boleh kosong';
@@ -93,158 +96,36 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHeader(),
+                  const RegisterHeader(),
                   const SizedBox(height: 40),
-                  _buildUsernameField(),
-                  const SizedBox(height: 20),
-                  _buildEmailField(),
-                  const SizedBox(height: 20),
-                  _buildPasswordField(),
-                  const SizedBox(height: 20),
-                  _buildConfirmPasswordField(),
+                  RegisterFormFields(
+                    usernameController: _usernameController,
+                    emailController: _emailController,
+                    passwordController: _passwordController,
+                    confirmPasswordController: _confirmPasswordController,
+                    isPasswordVisible: _isPasswordVisible,
+                    isConfirmPasswordVisible: _isConfirmPasswordVisible,
+                    onTogglePasswordVisibility: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                    onToggleConfirmPasswordVisibility: () {
+                      setState(() {
+                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                      });
+                    },
+                    confirmPasswordValidator: _validateConfirmPassword,
+                  ),
                   const SizedBox(height: 32),
-                  _buildRegisterButton(),
+                  RegisterButton(onPressed: _handleRegister),
                   const SizedBox(height: 24),
-                  _buildLoginLink(),
+                  const RegisterLoginLink(),
                 ],
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Daftar Akun Baru',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Buat akun untuk mulai berbelanja',
-          style: TextStyle(
-            fontSize: 14,
-            color: AppColors.textSecondary.withOpacity(0.8),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildUsernameField() {
-    return CustomTextField(
-      controller: _usernameController,
-      labelText: 'Username',
-      hintText: 'Masukkan username Anda',
-      prefixIcon: Icons.person_outline,
-      validator: Validators.validateUsername,
-    );
-  }
-
-  Widget _buildEmailField() {
-    return CustomTextField(
-      controller: _emailController,
-      labelText: 'Email',
-      hintText: 'Masukkan email Anda',
-      prefixIcon: Icons.email_outlined,
-      keyboardType: TextInputType.emailAddress,
-      validator: Validators.validateEmail,
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return CustomTextField(
-      controller: _passwordController,
-      labelText: 'Password',
-      hintText: 'Masukkan password Anda',
-      prefixIcon: Icons.lock_outline,
-      obscureText: !_isPasswordVisible,
-      validator: Validators.validatePassword,
-      suffixIcon: IconButton(
-        icon: Icon(
-          _isPasswordVisible
-              ? Icons.visibility_outlined
-              : Icons.visibility_off_outlined,
-          color: AppColors.textHint,
-        ),
-        onPressed: () {
-          setState(() {
-            _isPasswordVisible = !_isPasswordVisible;
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _buildConfirmPasswordField() {
-    return CustomTextField(
-      controller: _confirmPasswordController,
-      labelText: 'Konfirmasi Password',
-      hintText: 'Masukkan ulang password Anda',
-      prefixIcon: Icons.lock_outline,
-      obscureText: !_isConfirmPasswordVisible,
-      validator: _validateConfirmPassword,
-      suffixIcon: IconButton(
-        icon: Icon(
-          _isConfirmPasswordVisible
-              ? Icons.visibility_outlined
-              : Icons.visibility_off_outlined,
-          color: AppColors.textHint,
-        ),
-        onPressed: () {
-          setState(() {
-            _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _buildRegisterButton() {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        return CustomButton(
-          text: 'Daftar',
-          onPressed: _handleRegister,
-          isLoading: authProvider.isLoading,
-          icon: Icons.person_add,
-        );
-      },
-    );
-  }
-
-  Widget _buildLoginLink() {
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'Sudah punya akun? ',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: const Text(
-              'Masuk Sekarang',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
