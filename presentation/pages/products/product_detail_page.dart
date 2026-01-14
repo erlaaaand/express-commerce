@@ -4,7 +4,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
-import '../../../core/utils/image_helper.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../data/models/product_model.dart';
 import '../../providers/cart_provider.dart';
@@ -42,7 +41,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     final authProvider = context.read<AuthProvider>();
     final cartProvider = context.read<CartProvider>();
 
-    // Check if logged in
     if (!authProvider.isAuthenticated) {
       final shouldLogin = await showDialog<bool>(
         context: context,
@@ -73,7 +71,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       return;
     }
 
-    // Add to cart
     final success = await cartProvider.addToCart(
       productId: widget.product.id,
       quantity: _quantity,
@@ -147,9 +144,36 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       flexibleSpace: FlexibleSpaceBar(
         background: Hero(
           tag: 'product_${widget.product.id}',
-          child: ImageHelper.networkImage(
-            url: widget.product.imageUrl,
+          child: Image.network(
+            widget.product.imageUrl,
             fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: Colors.grey[200],
+                child: const Center(
+                  child: Icon(
+                    Icons.broken_image_outlined,
+                    color: Colors.grey,
+                    size: 40,
+                  ),
+                ),
+              );
+            },
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                color: Colors.grey[100],
+                child: Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+                    color: AppColors.primary,
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -162,7 +186,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Name
           Text(
             widget.product.name,
             style: const TextStyle(
@@ -171,10 +194,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               color: AppColors.textPrimary,
             ),
           ),
-
           const SizedBox(height: 12),
-
-          // Price
           Row(
             children: [
               if (widget.product.hasPromo) ...[
@@ -208,9 +228,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               ],
             ],
           ),
-
           const SizedBox(height: 8),
-
           Text(
             CurrencyFormatter.format(widget.product.effectivePrice),
             style: const TextStyle(
@@ -219,10 +237,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               color: AppColors.primary,
             ),
           ),
-
           const SizedBox(height: 16),
-
-          // Stock
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -280,10 +295,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               ],
             ),
           ),
-
           const SizedBox(height: 20),
-
-          // Quantity selector
           Row(
             children: [
               const Text(
