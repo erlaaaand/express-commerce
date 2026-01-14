@@ -22,13 +22,25 @@ class _OnboardingPageState extends State<OnboardingPage> {
     ),
     _OnboardingData(
       imagePath: 'lib/images/male-clothes-onboarding.webp',
-      title: 'Fashion Pria & Wanita',
+      title: 'Fashion Pria',
       description: 'Koleksi fashion terlengkap untuk gaya hidup modern Anda',
       color: AppColors.secondary,
     ),
     _OnboardingData(
       imagePath: 'lib/images/male-shoes-onboarding.webp',
       title: 'Sepatu & Aksesoris',
+      description: 'Berbagai pilihan sepatu berkualitas untuk aktivitas sehari-hari',
+      color: AppColors.accent,
+    ),
+    _OnboardingData(
+      imagePath: 'lib/images/female-shoes-onboarding.webp',
+      title: 'Sepatu & Aksesoris',
+      description: 'Berbagai pilihan sepatu berkualitas untuk aktivitas sehari-hari',
+      color: AppColors.accent,
+    ),
+    _OnboardingData(
+      imagePath: 'lib/images/female-clothes-onboarding.webp',
+      title: 'Fashion Wanita',
       description: 'Berbagai pilihan sepatu berkualitas untuk aktivitas sehari-hari',
       color: AppColors.accent,
     ),
@@ -78,7 +90,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Skip button
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Align(
@@ -97,7 +108,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
               ),
             ),
 
-            // PageView
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
@@ -110,7 +120,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Image
                         ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: Image.asset(
@@ -136,7 +145,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
                         const SizedBox(height: 60),
 
-                        // Title
                         Text(
                           page.title,
                           style: const TextStyle(
@@ -149,7 +157,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
                         const SizedBox(height: 20),
 
-                        // Description
                         Flexible(
                           child: Text(
                             page.description,
@@ -170,7 +177,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
               ),
             ),
 
-            // Indicators
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
@@ -192,7 +198,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
             const SizedBox(height: 40),
 
-            // Navigation buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Row(
