@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../orders/order_history_page.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../providers/auth_provider.dart';
@@ -261,68 +262,9 @@ class ProfilePage extends StatelessWidget {
             title: 'Pesanan Saya',
             subtitle: 'Lihat riwayat pesanan',
             onTap: () {
-              // TODO: Navigate to orders page
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fitur dalam pengembangan'),
-                  backgroundColor: AppColors.info,
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-          _buildMenuItem(
-            icon: Icons.favorite_outline,
-            title: 'Wishlist',
-            subtitle: 'Produk favorit Anda',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fitur dalam pengembangan'),
-                  backgroundColor: AppColors.info,
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-          _buildMenuItem(
-            icon: Icons.location_on_outlined,
-            title: 'Alamat',
-            subtitle: 'Kelola alamat pengiriman',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fitur dalam pengembangan'),
-                  backgroundColor: AppColors.info,
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-          _buildMenuItem(
-            icon: Icons.settings_outlined,
-            title: 'Pengaturan',
-            subtitle: 'Atur preferensi aplikasi',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fitur dalam pengembangan'),
-                  backgroundColor: AppColors.info,
-                ),
-              );
-            },
-          ),
-          const Divider(height: 1),
-          _buildMenuItem(
-            icon: Icons.help_outline,
-            title: 'Bantuan',
-            subtitle: 'Pusat bantuan & FAQ',
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fitur dalam pengembangan'),
-                  backgroundColor: AppColors.info,
-                ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const OrderHistoryPage()),
               );
             },
           ),
