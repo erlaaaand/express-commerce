@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../core/constants/api_constants.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
@@ -7,7 +9,6 @@ class AuthRepository {
   final ApiService _apiService = ApiService();
   final StorageService _storageService = StorageService();
 
-  // Register
   Future<UserModel> register({
     required String username,
     required String email,
@@ -23,18 +24,16 @@ class AuthRepository {
         },
       );
 
-      // Check response structure
-      print('Register response: $response');
+      debugPrint('Register response: $response');
 
       final userData = response['data'] as Map<String, dynamic>;
       return UserModel.fromJson(userData);
     } catch (e) {
-      print('Register error: $e');
+      debugPrint('Register error: $e');
       throw Exception('Registration failed: $e');
     }
   }
 
-  // Login
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
@@ -48,9 +47,8 @@ class AuthRepository {
         },
       );
 
-      print('Login response: $response');
+      debugPrint('Login response: $response');
 
-      // Handle different response structures
       Map<String, dynamic> data;
       
       if (response.containsKey('data')) {
@@ -59,7 +57,6 @@ class AuthRepository {
         data = response;
       }
 
-      // Extract token with multiple possible keys
       String? token;
       if (data.containsKey('token')) {
         token = data['token'] as String?;
@@ -73,7 +70,6 @@ class AuthRepository {
         throw Exception('Token tidak ditemukan dalam response');
       }
 
-      // Extract user info
       String? username;
       String? userId;
 
@@ -86,11 +82,9 @@ class AuthRepository {
         userId = data['id'] as String? ?? data['userId'] as String?;
       }
 
-      // Save token
       await _storageService.saveToken(token);
-      print('Token saved: ${token.substring(0, 20)}...');
+      debugPrint('Token saved: ${token.substring(0, 20)}...');
 
-      // Save user data
       await _storageService.saveUserData({
         'id': userId ?? '',
         'username': username ?? 'User',
@@ -103,12 +97,11 @@ class AuthRepository {
         'userId': userId ?? '',
       };
     } catch (e) {
-      print('Login error: $e');
+      debugPrint('Login error: $e');
       throw Exception('Login failed: $e');
     }
   }
 
-  // Get Profile
   Future<UserModel> getProfile() async {
     try {
       final response = await _apiService.get(
@@ -116,7 +109,7 @@ class AuthRepository {
         requiresAuth: true,
       );
 
-      print('Profile response: $response');
+      debugPrint('Profile response: $response');
 
       Map<String, dynamic> userData;
       
@@ -128,12 +121,11 @@ class AuthRepository {
 
       return UserModel.fromJson(userData);
     } catch (e) {
-      print('Get profile error: $e');
+      debugPrint('Get profile error: $e');
       throw Exception('Failed to get profile: $e');
     }
   }
 
-  // Logout
   Future<void> logout() async {
     try {
       await _storageService.clearAll();
@@ -142,12 +134,10 @@ class AuthRepository {
     }
   }
 
-  // Check if logged in
   Future<bool> isLoggedIn() async {
     return await _storageService.hasToken();
   }
 
-  // Get stored user data
   Future<Map<String, dynamic>?> getStoredUserData() async {
     return await _storageService.getUserData();
   }

@@ -5,7 +5,6 @@ import '../services/api_service.dart';
 class PaymentRepository {
   final ApiService _apiService = ApiService();
 
-  /// Process payment for an order
   Future<PaymentModel> processPayment({
     required String orderId,
   }) async {
@@ -23,7 +22,6 @@ class PaymentRepository {
     }
   }
 
-  /// Check payment status
   Future<PaymentModel> checkPaymentStatus(String orderId) async {
     try {
       final response = await _apiService.get(
@@ -38,7 +36,6 @@ class PaymentRepository {
     }
   }
 
-  /// Handle payment notification/callback
   Future<void> handlePaymentNotification(
     Map<String, dynamic> notificationData,
   ) async {
@@ -53,7 +50,6 @@ class PaymentRepository {
     }
   }
 
-  /// Cancel payment
   Future<void> cancelPayment(String orderId) async {
     try {
       await _apiService.post(
@@ -66,7 +62,6 @@ class PaymentRepository {
     }
   }
 
-  /// Get payment history
   Future<List<PaymentModel>> getPaymentHistory() async {
     try {
       final response = await _apiService.get(

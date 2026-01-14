@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../core/constants/api_constants.dart';
 import 'storage_service.dart';
@@ -6,32 +7,30 @@ import 'storage_service.dart';
 class ApiService {
   final StorageService _storageService = StorageService();
 
-  // GET Request
   Future<Map<String, dynamic>> get(String endpoint, {bool requiresAuth = false}) async {
     try {
       final headers = requiresAuth
           ? await _getAuthHeaders()
           : ApiConstants.defaultHeaders;
 
-      print('GET Request to: $endpoint');
-      print('Headers: $headers');
+      debugPrint('GET Request to: $endpoint');
+      debugPrint('Headers: $headers');
 
       final response = await http.get(
         Uri.parse(endpoint),
         headers: headers,
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
 
       return _handleResponse(response);
     } catch (e) {
-      print('GET Error: $e');
+      debugPrint('GET Error: $e');
       throw Exception('Network error: $e');
     }
   }
 
-  // POST Request
   Future<Map<String, dynamic>> post(
     String endpoint,
     Map<String, dynamic> body, {
@@ -42,9 +41,9 @@ class ApiService {
           ? await _getAuthHeaders()
           : ApiConstants.defaultHeaders;
 
-      print('POST Request to: $endpoint');
-      print('Headers: $headers');
-      print('Body: ${jsonEncode(body)}');
+      debugPrint('POST Request to: $endpoint');
+      debugPrint('Headers: $headers');
+      debugPrint('Body: ${jsonEncode(body)}');
 
       final response = await http.post(
         Uri.parse(endpoint),
@@ -52,12 +51,12 @@ class ApiService {
         body: jsonEncode(body),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
 
       return _handleResponse(response);
     } catch (e) {
-      print('POST Error: $e');
+      debugPrint('POST Error: $e');
       throw Exception('Network error: $e');
     }
   }
@@ -73,7 +72,7 @@ class ApiService {
           ? await _getAuthHeaders()
           : ApiConstants.defaultHeaders;
 
-      print('PUT Request to: $endpoint');
+      debugPrint('PUT Request to: $endpoint');
 
       final response = await http.put(
         Uri.parse(endpoint),
@@ -81,16 +80,15 @@ class ApiService {
         body: jsonEncode(body),
       );
 
-      print('Response status: ${response.statusCode}');
+      debugPrint('Response status: ${response.statusCode}');
 
       return _handleResponse(response);
     } catch (e) {
-      print('PUT Error: $e');
+      debugPrint('PUT Error: $e');
       throw Exception('Network error: $e');
     }
   }
 
-  // PATCH Request
   Future<Map<String, dynamic>> patch(
     String endpoint,
     Map<String, dynamic> body, {
@@ -101,7 +99,7 @@ class ApiService {
           ? await _getAuthHeaders()
           : ApiConstants.defaultHeaders;
 
-      print('PATCH Request to: $endpoint');
+      debugPrint('PATCH Request to: $endpoint');
 
       final response = await http.patch(
         Uri.parse(endpoint),
@@ -109,65 +107,60 @@ class ApiService {
         body: jsonEncode(body),
       );
 
-      print('Response status: ${response.statusCode}');
+      debugPrint('Response status: ${response.statusCode}');
 
       return _handleResponse(response);
     } catch (e) {
-      print('PATCH Error: $e');
+      debugPrint('PATCH Error: $e');
       throw Exception('Network error: $e');
     }
   }
 
-  // DELETE Request
   Future<Map<String, dynamic>> delete(String endpoint, {bool requiresAuth = false}) async {
     try {
       final headers = requiresAuth
           ? await _getAuthHeaders()
           : ApiConstants.defaultHeaders;
 
-      print('DELETE Request to: $endpoint');
+      debugPrint('DELETE Request to: $endpoint');
 
       final response = await http.delete(
         Uri.parse(endpoint),
         headers: headers,
       );
 
-      print('Response status: ${response.statusCode}');
+      debugPrint('Response status: ${response.statusCode}');
 
       return _handleResponse(response);
     } catch (e) {
-      print('DELETE Error: $e');
+      debugPrint('DELETE Error: $e');
       throw Exception('Network error: $e');
     }
   }
 
-  // Get Auth Headers
   Future<Map<String, String>> _getAuthHeaders() async {
     final token = await _storageService.getToken();
     
     if (token == null || token.isEmpty) {
-      print('Warning: No token found for authenticated request');
+      debugPrint('Warning: No token found for authenticated request');
       throw Exception('No authentication token found');
     }
 
-    print('Using token: ${token.substring(0, 20)}...');
+    debugPrint('Using token: ${token.substring(0, 20)}...');
 
-    // Try different authorization header formats
     return {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token', // Most common format
-      'x-auth-token': token, // Alternative format
+      'Authorization': 'Bearer $token',
+      'x-auth-token': token,
     };
   }
 
-  // Handle Response
   Map<String, dynamic> _handleResponse(http.Response response) {
     final statusCode = response.statusCode;
     final body = response.body;
 
-    print('Handling response with status: $statusCode');
+    debugPrint('Handling response with status: $statusCode');
 
-    // Handle empty response
     if (body.isEmpty) {
       if (statusCode >= 200 && statusCode < 300) {
         return {'success': true, 'data': {}};
@@ -180,16 +173,14 @@ class ApiService {
     try {
       jsonResponse = jsonDecode(body) as Map<String, dynamic>;
     } catch (e) {
-      print('JSON decode error: $e');
+      debugPrint('JSON decode error: $e');
       throw Exception('Invalid response format: $body');
     }
 
-    // Success responses (200-299)
     if (statusCode >= 200 && statusCode < 300) {
       return jsonResponse;
     }
 
-    // Error responses
     String errorMessage;
 
     switch (statusCode) {
@@ -202,7 +193,6 @@ class ApiService {
         errorMessage = jsonResponse['message'] ?? 
                       jsonResponse['error'] ?? 
                       'Email atau password salah';
-        // Clear token on 401
         _storageService.removeToken();
         break;
       case 403:
@@ -231,7 +221,7 @@ class ApiService {
                       'An error occurred';
     }
 
-    print('API Error: $errorMessage');
+    debugPrint('API Error: $errorMessage');
     throw Exception(errorMessage);
   }
 }

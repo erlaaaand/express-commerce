@@ -6,7 +6,6 @@ class StorageService {
   static const String _userKey = 'user_data';
   static const String _localCartKey = 'local_cart';
 
-  // Token Management
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
@@ -27,7 +26,6 @@ class StorageService {
     return token != null && token.isNotEmpty;
   }
 
-  // User Data Management
   Future<void> saveUserData(Map<String, dynamic> userData) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userKey, jsonEncode(userData));
@@ -47,7 +45,6 @@ class StorageService {
     await prefs.remove(_userKey);
   }
 
-  // Local Cart Management (untuk offline)
   Future<void> saveLocalCart(List<String> cartItems) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_localCartKey, cartItems);
@@ -71,7 +68,6 @@ class StorageService {
     }
   }
 
-  // Clear All Data
   Future<void> clearAll() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();

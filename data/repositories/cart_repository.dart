@@ -7,7 +7,6 @@ class CartRepository {
   final ApiService _apiService = ApiService();
   final StorageService _storageService = StorageService();
 
-  // Get cart
   Future<CartModel> getCart() async {
     try {
       final response = await _apiService.get(
@@ -22,7 +21,6 @@ class CartRepository {
     }
   }
 
-  // Add to cart
   Future<CartModel> addToCart({
     required String productId,
     int quantity = 1,
@@ -44,7 +42,6 @@ class CartRepository {
     }
   }
 
-  // Update cart item quantity
   Future<CartModel> updateQuantity({
     required String productId,
     required int quantity,
@@ -63,7 +60,6 @@ class CartRepository {
     }
   }
 
-  // Remove from cart
   Future<CartModel> removeFromCart(String productId) async {
     try {
       final response = await _apiService.delete(
@@ -78,7 +74,6 @@ class CartRepository {
     }
   }
 
-  // Clear cart
   Future<CartModel> clearCart() async {
     try {
       final response = await _apiService.delete(
@@ -93,7 +88,6 @@ class CartRepository {
     }
   }
 
-  // Add to local cart (offline)
   Future<void> addToLocalCart(String productId) async {
     try {
       await _storageService.addToLocalCart(productId);
@@ -102,7 +96,6 @@ class CartRepository {
     }
   }
 
-  // Get local cart
   Future<List<String>> getLocalCart() async {
     try {
       return await _storageService.getLocalCart();
@@ -111,7 +104,6 @@ class CartRepository {
     }
   }
 
-  // Sync local cart to server
   Future<void> syncLocalCart() async {
     try {
       final localCart = await _storageService.getLocalCart();

@@ -5,7 +5,6 @@ import '../services/api_service.dart';
 class ProductRepository {
   final ApiService _apiService = ApiService();
 
-  // Get all products
   Future<List<ProductModel>> getProducts() async {
     try {
       final response = await _apiService.get(ApiConstants.products);
@@ -17,7 +16,6 @@ class ProductRepository {
     }
   }
 
-  // Get products by category
   Future<List<ProductModel>> getProductsByCategory(String category) async {
     try {
       final response = await _apiService.get(
@@ -31,7 +29,6 @@ class ProductRepository {
     }
   }
 
-  // Get product by ID
   Future<ProductModel> getProductById(String productId) async {
     try {
       final response = await _apiService.get(
@@ -45,7 +42,6 @@ class ProductRepository {
     }
   }
 
-  // Search products
   Future<List<ProductModel>> searchProducts(String query) async {
     try {
       final response = await _apiService.get(
@@ -59,7 +55,6 @@ class ProductRepository {
     }
   }
 
-  // Create product (admin only)
   Future<ProductModel> createProduct(Map<String, dynamic> productData) async {
     try {
       final response = await _apiService.post(
@@ -75,7 +70,6 @@ class ProductRepository {
     }
   }
 
-  // Update product (admin only)
   Future<ProductModel> updateProduct(
     String productId,
     Map<String, dynamic> productData,
@@ -94,7 +88,6 @@ class ProductRepository {
     }
   }
 
-  // Delete product (admin only)
   Future<void> deleteProduct(String productId) async {
     try {
       await _apiService.delete(

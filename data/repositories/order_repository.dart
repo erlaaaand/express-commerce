@@ -5,7 +5,6 @@ import '../services/api_service.dart';
 class OrderRepository {
   final ApiService _apiService = ApiService();
 
-  // Checkout
   Future<Map<String, dynamic>> checkout({
     required String shippingAddress,
   }) async {
@@ -22,7 +21,6 @@ class OrderRepository {
     }
   }
 
-  // Get all orders
   Future<List<OrderModel>> getOrders() async {
     try {
       final response = await _apiService.get(
@@ -37,7 +35,6 @@ class OrderRepository {
     }
   }
 
-  // Get order by ID
   Future<OrderModel> getOrderById(String orderId) async {
     try {
       final response = await _apiService.get(
@@ -52,7 +49,6 @@ class OrderRepository {
     }
   }
 
-  // Cancel order
   Future<OrderModel> cancelOrder(String orderId) async {
     try {
       final response = await _apiService.post(
@@ -68,7 +64,6 @@ class OrderRepository {
     }
   }
 
-  // Check payment status
   Future<Map<String, dynamic>> checkPaymentStatus(String orderId) async {
     try {
       final response = await _apiService.get(
