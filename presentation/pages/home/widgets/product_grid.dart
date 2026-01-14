@@ -106,7 +106,6 @@ class ProductGridCard extends StatelessWidget {
   Widget _buildImage() {
     return Stack(
       children: [
-        // Product Image
         AspectRatio(
           aspectRatio: 1.0,
           child: ClipRRect(
@@ -120,7 +119,6 @@ class ProductGridCard extends StatelessWidget {
           ),
         ),
 
-        // Promo Badge
         if (product.hasPromo)
           Positioned(
             top: 8,
@@ -145,7 +143,6 @@ class ProductGridCard extends StatelessWidget {
             ),
           ),
 
-        // Stock Badge
         if (product.isLowStock)
           Positioned(
             top: 8,
@@ -180,7 +177,6 @@ class ProductGridCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Name
             Text(
               product.name,
               style: const TextStyle(
@@ -194,7 +190,6 @@ class ProductGridCard extends StatelessWidget {
 
             const Spacer(),
 
-            // Old Price (if promo)
             if (product.hasPromo)
               Text(
                 CurrencyFormatter.format(product.price),
@@ -205,7 +200,6 @@ class ProductGridCard extends StatelessWidget {
                 ),
               ),
 
-            // Current Price
             Text(
               CurrencyFormatter.format(product.effectivePrice),
               style: const TextStyle(
@@ -217,7 +211,6 @@ class ProductGridCard extends StatelessWidget {
 
             const SizedBox(height: 4),
 
-            // Stock Info
             Row(
               children: [
                 const Icon(

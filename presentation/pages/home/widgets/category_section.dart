@@ -2,18 +2,67 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../products/product_list_page.dart';
 
+enum ProductCategory {
+  smartphone,
+  pakaianPria,
+  pakaianWanita,
+  sepatuPria,
+  sepatuWanita,
+}
+
+extension ProductCategoryExt on ProductCategory {
+  String get apiValue {
+    switch (this) {
+      case ProductCategory.smartphone:
+        return 'Smartphone';
+      case ProductCategory.pakaianPria:
+        return 'Pakaian Pria';
+      case ProductCategory.pakaianWanita:
+        return 'Pakaian Wanita';
+      case ProductCategory.sepatuPria:
+        return 'Sepatu Pria';
+      case ProductCategory.sepatuWanita:
+        return 'Sepatu Wanita';
+    }
+  }
+
+  String get label {
+    switch (this) {
+      case ProductCategory.smartphone:
+        return 'Elektronik';
+      case ProductCategory.pakaianPria:
+        return 'Pakaian Pria';
+      case ProductCategory.pakaianWanita:
+        return 'Pakaian Wanita';
+      case ProductCategory.sepatuPria:
+        return 'Sepatu Pria';
+      case ProductCategory.sepatuWanita:
+        return 'Sepatu Wanita';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case ProductCategory.smartphone:
+        return Icons.devices;
+      case ProductCategory.pakaianPria:
+        return Icons.checkroom;
+      case ProductCategory.pakaianWanita:
+        return Icons.shopping_bag;
+      case ProductCategory.sepatuPria:
+        return Icons.sports_basketball;
+      case ProductCategory.sepatuWanita:
+        return Icons.sports_tennis;
+    }
+  }
+}
+
 class CategorySection extends StatelessWidget {
   const CategorySection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final categories = [
-      CategoryData('Electronic', 'Elektronik', Icons.devices),
-      CategoryData('MenClothes', 'Pria', Icons.checkroom),
-      CategoryData('WomenClothes', 'Wanita', Icons.shopping_bag),
-      CategoryData('ManShoes', 'Sepatu Pria', Icons.sports_basketball),
-      CategoryData('WomenShoes', 'Sepatu Wanita', Icons.sports_tennis),
-    ];
+    final categories = ProductCategory.values;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,8 +98,7 @@ class CategorySection extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             itemCount: categories.length,
             itemBuilder: (context, index) {
-              final category = categories[index];
-              return _CategoryCard(category: category);
+              return _CategoryCard(category: categories[index]);
             },
           ),
         ),
@@ -61,7 +109,7 @@ class CategorySection extends StatelessWidget {
 }
 
 class _CategoryCard extends StatelessWidget {
-  final CategoryData category;
+  final ProductCategory category;
 
   const _CategoryCard({required this.category});
 
@@ -73,8 +121,8 @@ class _CategoryCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (_) => ProductListPage(
-              category: category.code,
-              categoryName: category.name,
+              category: category.apiValue,
+              categoryName: category.label, 
             ),
           ),
         );
@@ -106,7 +154,7 @@ class _CategoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              category.name,
+              category.label,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -121,12 +169,4 @@ class _CategoryCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class CategoryData {
-  final String code;
-  final String name;
-  final IconData icon;
-
-  CategoryData(this.code, this.name, this.icon);
 }

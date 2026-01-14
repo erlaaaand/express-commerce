@@ -103,7 +103,6 @@ class _BannerSliderState extends State<BannerSlider> {
       ),
       child: Stack(
         children: [
-          // Decorative circles
           Positioned(
             right: -20,
             top: -20,
@@ -128,7 +127,6 @@ class _BannerSliderState extends State<BannerSlider> {
               ),
             ),
           ),
-          // Content
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
