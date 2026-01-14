@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:webview_flutter/webview_flutter.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
 import '../../../core/widgets/custom_button.dart';
@@ -10,7 +10,7 @@ import '../../../core/utils/validators.dart';
 import '../../../data/models/cart_model.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
-import '../payment/payment_page.dart';
+import '../orders/order_history_page.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -41,9 +41,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     setState(() => _isProcessing = true);
 
     try {
-      final cartProvider = context.read<CartProvider>();
-      
-      // Call checkout API endpoint which will handle both order creation and payment
       final response = await context.read<CartProvider>().checkoutCart(
         shippingAddress: _addressController.text.trim(),
         notes: _notesController.text.trim(),
@@ -51,18 +48,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
       if (!mounted) return;
 
+      setState(() => _isProcessing = false);
+
       if (response != null) {
-        // Navigate to payment page with payment URL
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => PaymentPage(
-              paymentUrl: response['paymentUrl'] as String,
-              orderId: response['orderId'] as String,
-              totalAmount: response['totalAmount'] as int,
-            ),
-          ),
-        );
+        final paymentUrl = response['paymentUrl'] as String;
+        final orderId = response['orderId'] as String;
+        
+        _showPaymentBottomSheet(paymentUrl, orderId);
       } else {
         Fluttertoast.showToast(
           msg: 'Checkout gagal, silakan coba lagi',
@@ -72,6 +64,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       }
     } catch (e) {
       if (mounted) {
+        setState(() => _isProcessing = false);
         Fluttertoast.showToast(
           msg: 'Error: ${e.toString()}',
           backgroundColor: AppColors.error,
@@ -79,11 +72,68 @@ class _CheckoutPageState extends State<CheckoutPage> {
           toastLength: Toast.LENGTH_LONG,
         );
       }
-    } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
-      }
     }
+  }
+
+  void _showPaymentBottomSheet(String paymentUrl, String orderId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _PaymentWebViewSheet(
+        paymentUrl: paymentUrl,
+        onSuccess: () {
+          Navigator.pop(context);
+          _handleSuccessCheckout(orderId);
+        },
+        onFailed: () {
+          Navigator.pop(context);
+          Fluttertoast.showToast(msg: "Pembayaran Gagal atau Dibatalkan");
+        },
+      ),
+    );
+  }
+
+  void _handleSuccessCheckout(String orderId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.check_circle, color: AppColors.success, size: 64),
+            const SizedBox(height: 16),
+            const Text(
+              'Checkout Berhasil!',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text('Order ID: $orderId', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            const SizedBox(height: 8),
+            const Text(
+              'Terima kasih telah berbelanja.\nPesanan Anda sedang diproses.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 24),
+            CustomButton(
+              text: 'Lihat Riwayat Pesanan',
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const OrderHistoryPage()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -174,17 +224,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
             children: [
               const Text(
                 'Subtotal',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               Text(
                 CurrencyFormatter.format(cart.totalAmount),
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -194,10 +238,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             children: [
               const Text(
                 'Ongkir',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.textSecondary,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
               Text(
                 cart.totalAmount >= 100000 ? 'GRATIS' : CurrencyFormatter.format(15000),
@@ -269,8 +310,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
             const SizedBox(height: 16),
-            
-            // Email (read-only)
             CustomTextField(
               labelText: 'Email',
               hintText: authProvider.user?.email ?? '',
@@ -278,8 +317,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
               prefixIcon: Icons.email_outlined,
             ),
             const SizedBox(height: 16),
-
-            // Phone
             CustomTextField(
               controller: _phoneController,
               labelText: 'Nomor Telepon',
@@ -289,8 +326,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
               validator: Validators.validatePhone,
             ),
             const SizedBox(height: 16),
-
-            // Address
             CustomTextField(
               controller: _addressController,
               labelText: 'Alamat Lengkap',
@@ -304,8 +339,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Notes (optional)
             CustomTextField(
               controller: _notesController,
               labelText: 'Catatan (Opsional)',
@@ -374,6 +407,101 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         );
       },
+    );
+  }
+}
+
+class _PaymentWebViewSheet extends StatefulWidget {
+  final String paymentUrl;
+  final VoidCallback onSuccess;
+  final VoidCallback onFailed;
+
+  const _PaymentWebViewSheet({
+    required this.paymentUrl,
+    required this.onSuccess,
+    required this.onFailed,
+  });
+
+  @override
+  State<_PaymentWebViewSheet> createState() => _PaymentWebViewSheetState();
+}
+
+class _PaymentWebViewSheetState extends State<_PaymentWebViewSheet> {
+  late final WebViewController _controller;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(Colors.white)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (url) => setState(() => _isLoading = true),
+          onPageFinished: (url) => setState(() => _isLoading = false),
+          onNavigationRequest: (NavigationRequest request) {
+            final url = request.url;
+            if (url.contains('status=success') || 
+                url.contains('transaction_status=settlement') || 
+                url.contains('payment/success') ||
+                url.contains('capture')) {
+              widget.onSuccess();
+              return NavigationDecision.prevent;
+            } else if (url.contains('status=failed') || 
+                       url.contains('payment/failed') || 
+                       url.contains('deny') || 
+                       url.contains('cancel')) {
+              widget.onFailed();
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(widget.paymentUrl));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.9,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Pembayaran',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: Stack(
+              children: [
+                WebViewWidget(controller: _controller),
+                if (_isLoading)
+                  const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
