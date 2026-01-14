@@ -81,7 +81,6 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo Container
                   Container(
                     width: 140,
                     height: 140,
@@ -105,9 +104,8 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                   
                   const SizedBox(height: 32),
                   
-                  // App Name
                   const Text(
-                    'ShopNow',
+                    'Kadai Erland',
                     style: TextStyle(
                       color: AppColors.white,
                       fontSize: 36,
@@ -118,7 +116,6 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                   
                   const SizedBox(height: 12),
                   
-                  // Tagline
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     decoration: BoxDecoration(
@@ -126,7 +123,7 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text(
-                      'Belanja Mudah, Cepat & Terpercaya',
+                      'Permudah Keinginan Belanjamu',
                       style: TextStyle(
                         color: AppColors.white,
                         fontSize: 14,
@@ -138,7 +135,6 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                   
                   const SizedBox(height: 60),
                   
-                  // Loading Indicator
                   SizedBox(
                     width: 50,
                     height: 50,
