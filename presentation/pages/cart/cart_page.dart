@@ -27,6 +27,8 @@ class _CartPageState extends State<CartPage> {
 
   void _loadCart() {
     Future.microtask(() {
+      if (!mounted) return;
+
       final authProvider = context.read<AuthProvider>();
       if (authProvider.isAuthenticated) {
         context.read<CartProvider>().fetchCart();
@@ -56,7 +58,9 @@ class _CartPageState extends State<CartPage> {
         ),
       );
 
-      if (shouldLogin == true && mounted) {
+      if (!mounted) return;
+
+      if (shouldLogin == true) {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -96,20 +100,20 @@ class _CartPageState extends State<CartPage> {
     if (confirmed == true) {
       final success = await cartProvider.removeFromCart(productId);
 
-      if (mounted) {
-        if (success) {
-          Fluttertoast.showToast(
-            msg: 'Item berhasil dihapus',
-            backgroundColor: AppColors.success,
-            textColor: AppColors.white,
-          );
-        } else {
-          Fluttertoast.showToast(
-            msg: cartProvider.errorMessage ?? 'Gagal menghapus item',
-            backgroundColor: AppColors.error,
-            textColor: AppColors.white,
-          );
-        }
+      if (!mounted) return;
+
+      if (success) {
+        Fluttertoast.showToast(
+          msg: 'Item berhasil dihapus',
+          backgroundColor: AppColors.success,
+          textColor: AppColors.white,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: cartProvider.errorMessage ?? 'Gagal menghapus item',
+          backgroundColor: AppColors.error,
+          textColor: AppColors.white,
+        );
       }
     }
   }
@@ -141,20 +145,20 @@ class _CartPageState extends State<CartPage> {
     if (confirmed == true) {
       final success = await cartProvider.clearCart();
 
-      if (mounted) {
-        if (success) {
-          Fluttertoast.showToast(
-            msg: 'Keranjang berhasil dikosongkan',
-            backgroundColor: AppColors.success,
-            textColor: AppColors.white,
-          );
-        } else {
-          Fluttertoast.showToast(
-            msg: cartProvider.errorMessage ?? 'Gagal mengosongkan keranjang',
-            backgroundColor: AppColors.error,
-            textColor: AppColors.white,
-          );
-        }
+      if (!mounted) return;
+
+      if (success) {
+        Fluttertoast.showToast(
+          msg: 'Keranjang berhasil dikosongkan',
+          backgroundColor: AppColors.success,
+          textColor: AppColors.white,
+        );
+      } else {
+        Fluttertoast.showToast(
+          msg: cartProvider.errorMessage ?? 'Gagal mengosongkan keranjang',
+          backgroundColor: AppColors.error,
+          textColor: AppColors.white,
+        );
       }
     }
   }
@@ -193,7 +197,12 @@ class _CartPageState extends State<CartPage> {
               title: 'Keranjang Masih Kosong',
               message: 'Yuk, mulai belanja dan temukan produk favorit Anda!',
               actionText: 'Mulai Belanja',
-              onActionPressed: () => Navigator.pop(context),
+              onActionPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                }
+              },
             );
           }
 
