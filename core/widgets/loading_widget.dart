@@ -69,7 +69,6 @@ class LoadingOverlay extends StatelessWidget {
   }
 }
 
-// Shimmer Loading for Grid
 class ProductGridShimmer extends StatelessWidget {
   final int itemCount;
 

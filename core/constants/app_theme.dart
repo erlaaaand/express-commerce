@@ -9,7 +9,6 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.background,
       fontFamily: 'Roboto',
       
-      // Color Scheme
       colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         secondary: AppColors.secondary,
@@ -17,7 +16,6 @@ class AppTheme {
         error: AppColors.error,
       ),
       
-      // AppBar Theme
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.white,
@@ -30,7 +28,6 @@ class AppTheme {
         ),
       ),
       
-      // Card Theme
       cardTheme: CardTheme(
         color: AppColors.white,
         elevation: 2,
@@ -40,7 +37,6 @@ class AppTheme {
         ),
       ),
       
-      // Elevated Button Theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -57,7 +53,6 @@ class AppTheme {
         ),
       ),
       
-      // Text Button Theme
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
@@ -68,7 +63,6 @@ class AppTheme {
         ),
       ),
       
-      // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.white,
@@ -95,7 +89,6 @@ class AppTheme {
         hintStyle: const TextStyle(color: AppColors.textHint),
       ),
       
-      // Bottom Navigation Bar Theme
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.white,
         selectedItemColor: AppColors.primary,
@@ -106,7 +99,6 @@ class AppTheme {
     );
   }
   
-  // Text Styles
   static const TextStyle heading1 = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.bold,
