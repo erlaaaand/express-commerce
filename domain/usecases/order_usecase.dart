@@ -6,11 +6,9 @@ class OrderUseCase {
 
   OrderUseCase(this._orderRepository);
 
-  /// Checkout and create order
   Future<Map<String, dynamic>> checkout({
     required String shippingAddress,
   }) async {
-    // Business logic validation
     if (shippingAddress.isEmpty) {
       throw Exception('Alamat pengiriman tidak boleh kosong');
     }
@@ -24,17 +22,14 @@ class OrderUseCase {
     );
   }
 
-  /// Get all user orders
   Future<List<OrderModel>> getOrders() async {
     final orders = await _orderRepository.getOrders();
     
-    // Business logic: Sort by created date (newest first)
     orders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     
     return orders;
   }
 
-  /// Get order by ID
   Future<OrderModel> getOrderById(String orderId) async {
     if (orderId.isEmpty) {
       throw Exception('Order ID tidak valid');
@@ -43,7 +38,6 @@ class OrderUseCase {
     return await _orderRepository.getOrderById(orderId);
   }
 
-  /// Cancel order
   Future<OrderModel> cancelOrder(String orderId) async {
     if (orderId.isEmpty) {
       throw Exception('Order ID tidak valid');
@@ -51,7 +45,6 @@ class OrderUseCase {
 
     final order = await _orderRepository.getOrderById(orderId);
     
-    // Business logic: Check if order can be cancelled
     if (!order.canBeCancelled) {
       throw Exception('Pesanan tidak dapat dibatalkan');
     }
@@ -59,7 +52,6 @@ class OrderUseCase {
     return await _orderRepository.cancelOrder(orderId);
   }
 
-  /// Check payment status
   Future<Map<String, dynamic>> checkPaymentStatus(String orderId) async {
     if (orderId.isEmpty) {
       throw Exception('Order ID tidak valid');
@@ -68,7 +60,6 @@ class OrderUseCase {
     return await _orderRepository.checkPaymentStatus(orderId);
   }
 
-  /// Filter orders by status
   List<OrderModel> filterOrdersByStatus(
     List<OrderModel> orders,
     OrderStatus status,
@@ -89,26 +80,22 @@ class OrderUseCase {
     }
   }
 
-  /// Get active orders (not completed or cancelled)
   List<OrderModel> getActiveOrders(List<OrderModel> orders) {
     return orders.where((order) => 
       !order.isCompleted && !order.isCancelled
     ).toList();
   }
 
-  /// Get completed orders
   List<OrderModel> getCompletedOrders(List<OrderModel> orders) {
     return orders.where((order) => order.isCompleted).toList();
   }
 
-  /// Calculate total spent
   int calculateTotalSpent(List<OrderModel> orders) {
     return orders
         .where((order) => order.isPaid || order.isCompleted)
         .fold(0, (sum, order) => sum + order.totalAmount);
   }
 
-  /// Calculate total items ordered
   int calculateTotalItemsOrdered(List<OrderModel> orders) {
     int total = 0;
     for (final order in orders) {
@@ -119,7 +106,6 @@ class OrderUseCase {
     return total;
   }
 
-  /// Get order summary
   OrderSummary getOrderSummary(List<OrderModel> orders) {
     return OrderSummary(
       totalOrders: orders.length,
@@ -133,7 +119,6 @@ class OrderUseCase {
     );
   }
 
-  /// Validate shipping address
   bool validateShippingAddress(String address) {
     if (address.isEmpty) return false;
     if (address.length < 10) return false;
@@ -142,9 +127,7 @@ class OrderUseCase {
     return true;
   }
 
-  /// Check if order needs attention
   bool needsAttention(OrderModel order) {
-    // Order is pending and created more than 24 hours ago
     if (order.isPending) {
       final hoursSinceCreated = 
         DateTime.now().difference(order.createdAt).inHours;
@@ -153,10 +136,8 @@ class OrderUseCase {
     return false;
   }
 
-  /// Get estimated delivery date
   DateTime? getEstimatedDelivery(OrderModel order) {
     if (order.isShipped) {
-      // Estimate 3-7 days delivery
       return order.createdAt.add(const Duration(days: 7));
     }
     return null;

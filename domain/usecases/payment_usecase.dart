@@ -6,7 +6,6 @@ class PaymentUseCase {
 
   PaymentUseCase(this._paymentRepository);
 
-  /// Process payment for an order
   Future<PaymentModel> processPayment({
     required String orderId,
   }) async {
@@ -17,7 +16,6 @@ class PaymentUseCase {
     return await _paymentRepository.processPayment(orderId: orderId);
   }
 
-  /// Check payment status
   Future<PaymentModel> checkPaymentStatus(String orderId) async {
     if (orderId.isEmpty) {
       throw Exception('Order ID tidak valid');
@@ -26,7 +24,6 @@ class PaymentUseCase {
     return await _paymentRepository.checkPaymentStatus(orderId);
   }
 
-  /// Cancel payment
   Future<void> cancelPayment(String orderId) async {
     if (orderId.isEmpty) {
       throw Exception('Order ID tidak valid');
@@ -35,17 +32,14 @@ class PaymentUseCase {
     await _paymentRepository.cancelPayment(orderId);
   }
 
-  /// Get payment history
   Future<List<PaymentModel>> getPaymentHistory() async {
     final payments = await _paymentRepository.getPaymentHistory();
 
-    // Sort by date (newest first)
     payments.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
     return payments;
   }
 
-  /// Filter payments by status
   List<PaymentModel> filterPaymentsByStatus(
     List<PaymentModel> payments,
     PaymentStatus status,
@@ -62,33 +56,27 @@ class PaymentUseCase {
     }
   }
 
-  /// Get pending payments
   List<PaymentModel> getPendingPayments(List<PaymentModel> payments) {
     return payments.where((payment) => payment.isPending).toList();
   }
 
-  /// Get successful payments
   List<PaymentModel> getSuccessfulPayments(List<PaymentModel> payments) {
     return payments.where((payment) => payment.isSuccess).toList();
   }
 
-  /// Calculate total paid amount
   int calculateTotalPaid(List<PaymentModel> payments) {
     return payments
         .where((payment) => payment.isSuccess)
         .fold(0, (sum, payment) => sum + payment.amount);
   }
 
-  /// Check if payment is expired
   bool isPaymentExpired(PaymentModel payment) {
     if (!payment.isPending) return false;
 
-    // Payment expires after 24 hours
     final expiryTime = payment.createdAt.add(const Duration(hours: 24));
     return DateTime.now().isAfter(expiryTime);
   }
 
-  /// Get time remaining for payment
   Duration? getTimeRemaining(PaymentModel payment) {
     if (!payment.isPending) return null;
 
@@ -99,7 +87,6 @@ class PaymentUseCase {
     return remaining;
   }
 
-  /// Format time remaining
   String formatTimeRemaining(Duration duration) {
     if (duration.inHours > 0) {
       return '${duration.inHours} jam ${duration.inMinutes.remainder(60)} menit';
@@ -110,7 +97,6 @@ class PaymentUseCase {
     }
   }
 
-  /// Validate payment URL
   bool isValidPaymentUrl(String url) {
     if (url.isEmpty) return false;
 
