@@ -7,6 +7,7 @@ class ProductModel {
   final String imageUrl;
   final String category;
   final int stock;
+  final String vendor;
 
   ProductModel({
     required this.id,
@@ -17,6 +18,7 @@ class ProductModel {
     required this.imageUrl,
     required this.category,
     required this.stock,
+    required this.vendor,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class ProductModel {
       imageUrl: json['imageUrl'] ?? '',
       category: json['category'] ?? '',
       stock: json['stock'] ?? 0,
+      vendor: json['vendor'] ?? '',
     );
   }
 
@@ -42,6 +45,7 @@ class ProductModel {
       'imageUrl': imageUrl,
       'category': category,
       'stock': stock,
+      'vendor': vendor,
     };
   }
 
@@ -59,6 +63,7 @@ class ProductModel {
     String? imageUrl,
     String? category,
     int? stock,
+    String? vendor,
   }) {
     return ProductModel(
       id: id ?? this.id,
@@ -69,6 +74,7 @@ class ProductModel {
       imageUrl: imageUrl ?? this.imageUrl,
       category: category ?? this.category,
       stock: stock ?? this.stock,
+      vendor: vendor ?? this.vendor,
     );
   }
 }
