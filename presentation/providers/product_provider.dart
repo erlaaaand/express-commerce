@@ -15,21 +15,22 @@ class ProductProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // Fetch all products
   Future<void> fetchProducts() async {
     try {
-      _setLoading(true);
-      _errorMessage = null;
+      _isLoading = true;
+      notifyListeners();
 
       _products = await _productRepository.getProducts();
-      _setLoading(false);
+
+      _isLoading = false;
+      notifyListeners();
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
-      _setLoading(false);
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  // Fetch products by category
   Future<void> fetchProductsByCategory(String category) async {
     try {
       _setLoading(true);
@@ -43,7 +44,6 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // Fetch product by ID
   Future<void> fetchProductById(String productId) async {
     try {
       _setLoading(true);
@@ -57,7 +57,6 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // Search products
   Future<void> searchProducts(String query) async {
     try {
       _setLoading(true);
@@ -71,7 +70,6 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // Filter products by price range
   List<ProductModel> filterByPriceRange(int minPrice, int maxPrice) {
     return _products.where((product) {
       final price = product.effectivePrice;
@@ -79,7 +77,6 @@ class ProductProvider with ChangeNotifier {
     }).toList();
   }
 
-  // Sort products
   void sortProducts(String sortBy) {
     switch (sortBy) {
       case 'price_low':
@@ -95,18 +92,15 @@ class ProductProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Get products by category (local filter)
   List<ProductModel> getProductsByCategory(String category) {
     return _products.where((p) => p.category == category).toList();
   }
 
-  // Clear selected product
   void clearSelectedProduct() {
     _selectedProduct = null;
     notifyListeners();
   }
 
-  // Clear error
   void clearError() {
     _errorMessage = null;
     notifyListeners();

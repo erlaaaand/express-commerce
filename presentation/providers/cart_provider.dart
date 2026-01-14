@@ -18,7 +18,6 @@ class CartProvider with ChangeNotifier {
   int get totalAmount => _cart?.totalAmount ?? 0;
   bool get isEmpty => _cart?.isEmpty ?? true;
 
-  // Fetch cart
   Future<void> fetchCart() async {
     try {
       _setLoading(true);
@@ -32,7 +31,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Add to cart
   Future<bool> addToCart({
     required String productId,
     int quantity = 1,
@@ -55,7 +53,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Update quantity
   Future<bool> updateQuantity({
     required String productId,
     required int quantity,
@@ -78,7 +75,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Remove from cart
   Future<bool> removeFromCart(String productId) async {
     try {
       _setLoading(true);
@@ -95,7 +91,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Clear cart
   Future<bool> clearCart() async {
     try {
       _setLoading(true);
@@ -112,7 +107,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Checkout cart - NEW METHOD
   Future<Map<String, dynamic>?> checkoutCart({
     required String shippingAddress,
     String? notes,
@@ -121,12 +115,10 @@ class CartProvider with ChangeNotifier {
       _setLoading(true);
       _errorMessage = null;
 
-      // Call checkout endpoint which creates order and payment
       final response = await _orderRepository.checkout(
         shippingAddress: shippingAddress,
       );
 
-      // Clear cart after successful checkout
       _cart = CartModel(
         id: _cart?.id ?? '',
         userId: _cart?.userId ?? '',
@@ -136,7 +128,6 @@ class CartProvider with ChangeNotifier {
 
       _setLoading(false);
 
-      // Return payment info
       return {
         'orderId': response['orderId'],
         'paymentUrl': response['paymentUrl'],
@@ -150,7 +141,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Add to local cart (offline)
   Future<void> addToLocalCart(String productId) async {
     try {
       await _cartRepository.addToLocalCart(productId);
@@ -161,7 +151,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Sync local cart
   Future<void> syncLocalCart() async {
     try {
       _setLoading(true);
@@ -174,7 +163,6 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Clear error
   void clearError() {
     _errorMessage = null;
     notifyListeners();

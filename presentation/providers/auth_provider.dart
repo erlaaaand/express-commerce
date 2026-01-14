@@ -14,7 +14,6 @@ class AuthProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _user != null;
 
-  // Initialize - check if user is logged in
   Future<void> initialize() async {
     try {
       final isLoggedIn = await _authRepository.isLoggedIn();
@@ -24,22 +23,19 @@ class AuthProvider with ChangeNotifier {
           _user = UserModel.fromJson(userData);
           notifyListeners();
           
-          // Try to fetch fresh profile data
           try {
             await getProfile();
           } catch (e) {
-            print('Failed to fetch profile: $e');
-            // Keep using stored data if profile fetch fails
+            debugPrint('Failed to fetch profile: $e');
           }
         }
       }
     } catch (e) {
-      print('Initialize error: $e');
+      debugPrint('Initialize error: $e');
       _errorMessage = e.toString();
     }
   }
 
-  // Register
   Future<bool> register({
     required String username,
     required String email,
@@ -59,14 +55,13 @@ class AuthProvider with ChangeNotifier {
       _setLoading(false);
       return true;
     } catch (e) {
-      print('Register error in provider: $e');
+      debugPrint('Register error in provider: $e');
       _errorMessage = _extractErrorMessage(e.toString());
       _setLoading(false);
       return false;
     }
   }
 
-  // Login
   Future<bool> login({
     required String email,
     required String password,
@@ -80,9 +75,8 @@ class AuthProvider with ChangeNotifier {
         password: password,
       );
 
-      print('Login result: $result');
+      debugPrint('Login result: $result');
 
-      // Create user model from login result
       _user = UserModel(
         id: result['userId'] as String? ?? '',
         username: result['username'] as String,
@@ -92,14 +86,13 @@ class AuthProvider with ChangeNotifier {
       _setLoading(false);
       return true;
     } catch (e) {
-      print('Login error in provider: $e');
+      debugPrint('Login error in provider: $e');
       _errorMessage = _extractErrorMessage(e.toString());
       _setLoading(false);
       return false;
     }
   }
 
-  // Get Profile
   Future<void> getProfile() async {
     try {
       _setLoading(true);
@@ -108,11 +101,10 @@ class AuthProvider with ChangeNotifier {
       _user = await _authRepository.getProfile();
       _setLoading(false);
     } catch (e) {
-      print('Get profile error: $e');
+      debugPrint('Get profile error: $e');
       _errorMessage = _extractErrorMessage(e.toString());
       _setLoading(false);
       
-      // If profile fetch fails due to invalid token, logout
       if (_errorMessage?.contains('token') == true ||
           _errorMessage?.contains('Unauthorized') == true) {
         await logout();
@@ -120,7 +112,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Logout
   Future<void> logout() async {
     try {
       await _authRepository.logout();
@@ -128,13 +119,12 @@ class AuthProvider with ChangeNotifier {
       _errorMessage = null;
       notifyListeners();
     } catch (e) {
-      print('Logout error: $e');
+      debugPrint('Logout error: $e');
       _errorMessage = _extractErrorMessage(e.toString());
       notifyListeners();
     }
   }
 
-  // Clear error
   void clearError() {
     _errorMessage = null;
     notifyListeners();
@@ -145,22 +135,17 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Extract clean error message
   String _extractErrorMessage(String error) {
-    // Extract the actual error message from nested exceptions
     String message = error;
     
-    // Remove all 'Exception: ' prefixes
     while (message.contains('Exception: ')) {
       message = message.substring(message.indexOf('Exception: ') + 11);
     }
     
-    // Remove 'Login failed: ', 'Registration failed: ', etc.
     message = message
         .replaceFirst(RegExp(r'^(Login|Registration|Network error): '), '')
         .trim();
 
-    // Make error messages user-friendly
     final lowerMessage = message.toLowerCase();
     
     if (lowerMessage.contains('invalid credentials') ||
@@ -194,7 +179,6 @@ class AuthProvider with ChangeNotifier {
       return 'Terjadi kesalahan, coba lagi';
     }
 
-    // Return the cleaned message as-is if no pattern matches
     return message;
   }
 }

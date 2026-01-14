@@ -21,7 +21,6 @@ class PaymentProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  /// Process payment for an order
   Future<bool> processPayment({required String orderId}) async {
     try {
       _setLoading(true);
@@ -40,7 +39,6 @@ class PaymentProvider with ChangeNotifier {
     }
   }
 
-  /// Check payment status
   Future<bool> checkPaymentStatus(String orderId) async {
     try {
       _setLoading(true);
@@ -57,7 +55,6 @@ class PaymentProvider with ChangeNotifier {
     }
   }
 
-  /// Cancel payment
   Future<bool> cancelPayment(String orderId) async {
     try {
       _setLoading(true);
@@ -65,7 +62,6 @@ class PaymentProvider with ChangeNotifier {
 
       await _paymentUseCase.cancelPayment(orderId);
 
-      // Update current payment if it matches
       if (_currentPayment?.orderId == orderId) {
         _currentPayment = null;
       }
@@ -79,7 +75,6 @@ class PaymentProvider with ChangeNotifier {
     }
   }
 
-  /// Get payment history
   Future<void> fetchPaymentHistory() async {
     try {
       _setLoading(true);
@@ -94,48 +89,39 @@ class PaymentProvider with ChangeNotifier {
     }
   }
 
-  /// Filter payments by status
   List<PaymentModel> filterPaymentsByStatus(PaymentStatus status) {
     return _paymentUseCase.filterPaymentsByStatus(_paymentHistory, status);
   }
 
-  /// Get pending payments
   List<PaymentModel> get pendingPayments {
     return _paymentUseCase.getPendingPayments(_paymentHistory);
   }
 
-  /// Get successful payments
   List<PaymentModel> get successfulPayments {
     return _paymentUseCase.getSuccessfulPayments(_paymentHistory);
   }
 
-  /// Calculate total paid amount
   int get totalPaidAmount {
     return _paymentUseCase.calculateTotalPaid(_paymentHistory);
   }
 
-  /// Check if payment is expired
   bool isPaymentExpired(PaymentModel payment) {
     return _paymentUseCase.isPaymentExpired(payment);
   }
 
-  /// Get time remaining for payment
   Duration? getTimeRemaining(PaymentModel payment) {
     return _paymentUseCase.getTimeRemaining(payment);
   }
 
-  /// Format time remaining
   String formatTimeRemaining(Duration duration) {
     return _paymentUseCase.formatTimeRemaining(duration);
   }
 
-  /// Clear current payment
   void clearCurrentPayment() {
     _currentPayment = null;
     notifyListeners();
   }
 
-  /// Clear error
   void clearError() {
     _errorMessage = null;
     notifyListeners();
