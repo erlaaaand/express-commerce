@@ -3,10 +3,12 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/currency_formatter.dart';
 import '../../providers/payment_provider.dart';
 import '../home/home_page.dart';
 import 'payment_status_page.dart';
+import 'widgets/payment_header.dart';
+import 'widgets/payment_loading_view.dart';
+import 'widgets/payment_error_view.dart';
 
 class PaymentPage extends StatefulWidget {
   final String paymentUrl;
@@ -184,118 +186,26 @@ class _PaymentPageState extends State<PaymentPage> {
           ),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(60),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              color: AppColors.primary.withOpacity(0.1),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Total Pembayaran',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        CurrencyFormatter.format(widget.totalAmount),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.warning,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'Menunggu Pembayaran',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            child: PaymentHeader(totalAmount: widget.totalAmount),
           ),
         ),
         body: Stack(
           children: [
             if (_errorMessage != null)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        size: 80,
-                        color: AppColors.error,
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        _errorMessage!,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: AppColors.textPrimary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _errorMessage = null;
-                            _initializeWebView();
-                          });
-                        },
-                        child: const Text('Coba Lagi'),
-                      ),
-                    ],
-                  ),
-                ),
+              PaymentErrorView(
+                message: _errorMessage!,
+                onRetry: () {
+                  setState(() {
+                    _errorMessage = null;
+                    _initializeWebView();
+                  });
+                },
               )
             else
               WebViewWidget(controller: _controller),
             
             if (_isLoading)
-              Container(
-                color: AppColors.white,
-                child: const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(
-                        color: AppColors.primary,
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'Memuat halaman pembayaran...',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              const PaymentLoadingView(),
           ],
         ),
       ),
