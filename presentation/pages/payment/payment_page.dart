@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/utils/currency_formatter.dart';
@@ -61,7 +60,6 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   void _handleUrlChange(String url) {
-    // Check if payment is completed based on URL
     if (url.contains('status=success') || 
         url.contains('transaction_status=settlement') ||
         url.contains('payment/success')) {
@@ -80,7 +78,6 @@ class _PaymentPageState extends State<PaymentPage> {
     
     if (!mounted) return;
 
-    // Check payment status from server
     final paymentProvider = context.read<PaymentProvider>();
     final success = await paymentProvider.checkPaymentStatus(widget.orderId);
 

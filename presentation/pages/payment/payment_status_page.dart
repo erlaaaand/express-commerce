@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
-
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../home/home_page.dart';
@@ -31,12 +29,10 @@ class PaymentStatusPage extends StatelessWidget {
             children: [
               const Spacer(),
               
-              // Animation or Icon
               _buildStatusIcon(),
               
               const SizedBox(height: 32),
               
-              // Title
               Text(
                 _getTitle(),
                 style: const TextStyle(
@@ -49,7 +45,6 @@ class PaymentStatusPage extends StatelessWidget {
               
               const SizedBox(height: 16),
               
-              // Message
               Text(
                 message,
                 style: const TextStyle(
@@ -62,7 +57,6 @@ class PaymentStatusPage extends StatelessWidget {
               
               const SizedBox(height: 24),
               
-              // Order ID
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -95,7 +89,6 @@ class PaymentStatusPage extends StatelessWidget {
               
               const Spacer(),
               
-              // Action Buttons
               _buildActionButtons(context),
               
               const SizedBox(height: 16),
@@ -169,7 +162,6 @@ class PaymentStatusPage extends StatelessWidget {
           CustomButton(
             text: 'Lihat Pesanan',
             onPressed: () {
-              // TODO: Navigate to order detail
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (_) => const HomePage()),
@@ -195,7 +187,6 @@ class PaymentStatusPage extends StatelessWidget {
           CustomButton(
             text: 'Lihat Status Pembayaran',
             onPressed: () {
-              // TODO: Navigate to payment status tracking
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (_) => const HomePage()),
