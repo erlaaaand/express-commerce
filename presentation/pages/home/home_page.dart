@@ -2,16 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/utils/currency_formatter.dart';
-import '../../../core/utils/image_helper.dart';
 import '../../../core/widgets/empty_state.dart';
-import '../../../data/models/product_model.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../products/product_detail_page.dart';
 import '../products/product_list_page.dart';
 import '../cart/cart_page.dart';
 import '../auth/login_page.dart';
+import '../profile/profile_page.dart';
+import '../../../core/widgets/product_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,6 +22,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final PageController _bannerController = PageController();
   int _currentBannerIndex = 0;
+
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -39,7 +40,9 @@ class _HomePageState extends State<HomePage> {
 
   void _loadProducts() {
     Future.microtask(() {
-      context.read<ProductProvider>().fetchProducts();
+      if (mounted) {
+        context.read<ProductProvider>().fetchProducts();
+      }
     });
   }
 
@@ -57,19 +60,49 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _onItemTapped(int index) {
+    final authProvider = context.read<AuthProvider>();
+
+    if (index == 1 && !authProvider.isAuthenticated) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+      ).then((_) {
+        setState(() {});
+      });
+      return;
+    }
+
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      _buildHomeContent(),
+      const ProfilePage(),
+    ];
+
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          _buildAppBar(),
-          SliverToBoxAdapter(child: _buildBanner()),
-          SliverToBoxAdapter(child: _buildCategories()),
-          _buildProductGrid(),
-        ],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: pages,
       ),
       bottomNavigationBar: _buildBottomNav(),
+    );
+  }
+
+  Widget _buildHomeContent() {
+    return CustomScrollView(
+      slivers: [
+        _buildAppBar(),
+        SliverToBoxAdapter(child: _buildBanner()),
+        SliverToBoxAdapter(child: _buildCategories()),
+        _buildProductGrid(),
+      ],
     );
   }
 
@@ -92,20 +125,16 @@ class _HomePageState extends State<HomePage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  'ShopNow',
+                  'Kadai Erland',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.white,
-                  ),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white),
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   'Halo, $username',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.white,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: AppColors.white),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -118,9 +147,7 @@ class _HomePageState extends State<HomePage> {
           icon: const Icon(Icons.shopping_cart_outlined),
           onPressed: () {
             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CartPage()),
-            );
+                context, MaterialPageRoute(builder: (_) => const CartPage()));
           },
         ),
         const SizedBox(width: 8),
@@ -169,7 +196,6 @@ class _HomePageState extends State<HomePage> {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      // Background Image
                       Image.asset(
                         banner.imagePath,
                         fit: BoxFit.cover,
@@ -185,10 +211,12 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             ),
+                            child: const Center(
+                                child: Icon(Icons.image,
+                                    color: Colors.white, size: 50)),
                           );
                         },
                       ),
-                      // Overlay Gradient
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -201,7 +229,6 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      // Content
                       Padding(
                         padding: const EdgeInsets.all(24),
                         child: Column(
@@ -210,9 +237,7 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
+                                  horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 color: AppColors.white.withOpacity(0.3),
                                 borderRadius: BorderRadius.circular(20),
@@ -286,38 +311,21 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCategories() {
     final categories = [
       _CategoryData(
-        'Electronic',
-        'Elektronik',
-        'lib/images/gadgets-vector.png',
-      ),
+          'Smartphone', 'Elektronik', 'lib/images/icon-elektronik.png'),
+      _CategoryData('Pakaian Pria', 'Pria', 'lib/images/icon-baju-pria.png'),
       _CategoryData(
-        'MenClothes',
-        'Pria',
-        'lib/images/male-clothes-vector.png',
-      ),
+          'Pakaian Wanita', 'Wanita', 'lib/images/icon-baju-wanita.png'),
+      _CategoryData('Sepatu Pria', 'Sepatu', 'lib/images/icon-sepatu-pria.png'),
       _CategoryData(
-        'WomenClothes',
-        'Wanita',
-        'lib/images/female-clothes-vector.png',
-      ),
-      _CategoryData(
-        'ManShoes',
-        'Sepatu Pria',
-        'lib/images/male-shoes-vector.png',
-      ),
-      _CategoryData(
-        'WomenShoes',
-        'Sepatu Wanita',
-        'lib/images/female-shoes-vector.png',
-      ),
+          'Sepatu Wanita', 'Wanita', 'lib/images/icon-sepatu-wanita.png'),
     ];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 12),
-          child: Text(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
             'Kategori',
             style: TextStyle(
               fontSize: 18,
@@ -325,15 +333,20 @@ class _HomePageState extends State<HomePage> {
               color: AppColors.textPrimary,
             ),
           ),
-        ),
-        SizedBox(
-          height: 110,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+          const SizedBox(height: 12),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: categories.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 5,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 0.72,
+            ),
             itemBuilder: (context, index) {
               final category = categories[index];
+
               return GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -346,63 +359,57 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 },
-                child: Container(
-                  width: 85,
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 70,
-                        height: 70,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Container(
                         decoration: BoxDecoration(
                           color: AppColors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.shadow,
-                              blurRadius: 8,
+                              blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.asset(
-                            category.imagePath,
-                            fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
-                                Icons.category,
-                                color: AppColors.primary,
-                                size: 32,
-                              );
-                            },
+                        padding: const EdgeInsets.all(8),
+                        child: Image.asset(
+                          category.imagePath,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.category,
+                            color: AppColors.primary,
+                            size: 24,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Flexible(
-                        child: Text(
-                          category.name,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textPrimary,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Expanded(
+                      flex: 1,
+                      child: Text(
+                        category.name,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               );
             },
           ),
-        ),
-        const SizedBox(height: 16),
-      ],
+        ],
+      ),
     );
   }
 
@@ -434,14 +441,25 @@ class _HomePageState extends State<HomePage> {
           sliver: SliverGrid(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.7,
+              childAspectRatio:
+                  0.65,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 final product = provider.products[index];
-                return _ProductCard(product: product);
+                return ProductCard(
+                  product: product,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProductDetailPage(product: product),
+                      ),
+                    );
+                  },
+                );
               },
               childCount: provider.products.length,
             ),
@@ -464,7 +482,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       child: BottomNavigationBar(
-        currentIndex: 0,
+        currentIndex: _selectedIndex,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textSecondary,
         items: const [
@@ -479,195 +497,7 @@ class _HomePageState extends State<HomePage> {
             label: 'Profile',
           ),
         ],
-        onTap: (index) {
-          if (index == 1) {
-            final authProvider = context.read<AuthProvider>();
-            if (authProvider.isAuthenticated) {
-              _showProfileSheet();
-            } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-              );
-            }
-          }
-        },
-      ),
-    );
-  }
-
-  void _showProfileSheet() {
-    final authProvider = context.read<AuthProvider>();
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const CircleAvatar(
-                radius: 40,
-                backgroundColor: AppColors.primary,
-                child: Icon(
-                  Icons.person,
-                  size: 40,
-                  color: AppColors.white,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                authProvider.user?.username ?? 'User',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Flexible(
-                child: Text(
-                  authProvider.user?.email ?? '',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textSecondary,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    authProvider.logout();
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.error,
-                  ),
-                  child: const Text('Logout'),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _ProductCard extends StatelessWidget {
-  final ProductModel product;
-
-  const _ProductCard({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ProductDetailPage(product: product),
-          ),
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.shadow,
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 1.0,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
-                child: ImageHelper.networkImage(
-                  url: product.imageUrl,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        product.name,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const Spacer(),
-                    Text(
-                      CurrencyFormatter.format(product.effectivePrice),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (product.isLowStock) ...[
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.warning.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Text(
-                          'Stok Terbatas',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: AppColors.warning,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+        onTap: _onItemTapped,
       ),
     );
   }
